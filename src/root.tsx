@@ -22,12 +22,28 @@ export const Root = (): JSX.Element => {
         <div className="buttonsArea"
              style={{ width: '200px', height: '200px'}}
         >
-        <button 
-          className = "createSheepButton"
-//          onClick   = {() => props.props.sendPlayState (props.eventId)} 
-        >
-          {'Create Sheep'}
-        </button>          <h1>Buttons Area</h1>
+          <form className="create-sheep">
+            <label id="sheepNameLabel" htmlFor="sheepName" className="sr-only">Name:</label>
+            <input 
+              id="sheepName"
+              type='text' 
+              className = 'form-control'
+              name='sheepNameText'
+              placeholder="Name" required autoFocus
+            />
+            <label id="sheepSexLabel" htmlFor="sheepSex" className="sr-only">Sex</label>
+            <select className="form-control">
+              <option>Male</option>
+              <option>Female</option>
+            </select>
+
+            <button 
+              className="btn btn-lg btn-primary btn-block"
+    //          onClick   = {() => props.props.sendPlayState (props.eventId)} 
+            >
+              {'Create Sheep'}
+            </button>          
+          </form>
         </div>
         <div className="field">
           <canvas ref={canvasRef}/>
@@ -35,4 +51,3 @@ export const Root = (): JSX.Element => {
       </div>
     }
 
-    

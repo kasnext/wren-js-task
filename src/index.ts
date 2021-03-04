@@ -5,14 +5,14 @@ import * as ReactDOM from 'react-dom';
 
 import { Root } from './root';
 
-import './styles.css';
+import './styles.css'
 
 
-function main() {
+const main = () => 
     ReactDOM.render(
         React.createElement(Root),
         document.getElementById('app')
-    );
-}
+    )
 
-main();
+main()
+
