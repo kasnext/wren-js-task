@@ -2,10 +2,6 @@ Todo
 ----
 
 
-9/ Add an event handler to the createSheep button, that will display a message with the sheep name and sex
-
-10/ Add a sheep icon and display it in the field
-
 11/ Change the createSheep event handler so that it creates the sheep and displays it in the centre of the field
 
 x/ The field is refreshing too often
@@ -15,6 +11,10 @@ x/ Create a CSS file for the colours and graphics
 
 Done
 ----
+10/ Add an event handler to the createSheep button, that will display the sheep on the canvas
+
+9/ Add a sheep icon and display it
+
 8/ Add the fields for specifying the sheep's name and sex
 
 7/ Add a button to create a sheep

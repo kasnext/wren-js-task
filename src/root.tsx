@@ -2,6 +2,19 @@ import * as React from 'react';
 import { useEffect } from 'react';
 import { useRef } from 'react';
 
+const displaySheep = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
+  const canvas = canvasRef.current;
+  if (canvas !== null) {
+    const context = canvas.getContext('2d');
+    if (context !== null) {
+      const img = new Image();        
+      img.src = '../media/sheep.gif';        
+      img.onload = () => 
+        context.drawImage(img, 0, 0)
+    }
+  }
+}
+
 export const Root = (): JSX.Element => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
      
@@ -39,10 +52,11 @@ export const Root = (): JSX.Element => {
 
             <button 
               className="btn btn-lg btn-primary btn-block"
-    //          onClick   = {() => props.props.sendPlayState (props.eventId)} 
+              onClick   = {() => displaySheep (canvasRef)} 
             >
               {'Create Sheep'}
             </button>          
+            {/* <img src="../media/sheep.gif" height="50%" width="50%" alt="Sheep.gif" />             */}
           </form>
         </div>
         <div className="field">
