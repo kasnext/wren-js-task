@@ -1,0 +1,10 @@
+Questions
+---------
+1/ Node.js is already installed, version 14.4.0 (ran node -v)
+	Is the version of node.js I am using compatible? It appears so 
+
+2/ How should I submit the completed task? 
+	- By submitting a push request?
+
+3/ npm install - found 403 vulnerabilities - 5 high - should I run npm audit fix?
+

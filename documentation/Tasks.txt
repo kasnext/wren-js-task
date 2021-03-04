@@ -1,0 +1,31 @@
+Todo
+----
+
+5/ Use the Canvas API to draw a green rectangle 
+
+x/ Use the React hook useRef, so that we can interact with the canvas
+
+x/ Organise the UI into 2 areas - a button area and a field 
+
+x/ Create a CSS file for the colours and graphics
+
+
+Done
+----
+4/ Convert to the React Hooks style
+
+3/ Follow the instuctions in Readme.md
+	- npm install 	(Installs the dependencies in the local node_modules folder)
+	- npm start	(The app ran and displayed "Hello World" in a browser window)
+
+2/ Open the following folder in VsCode:
+	X:\Wren\wren-js-task
+
+1/ Clone the git repository from:
+	https://github.com/WrenKitchensLtd/wren-js-task
+   to:
+	X:\Wren\wren-js-task
+
+0/ Read the instruction in Readme.md
+
+
