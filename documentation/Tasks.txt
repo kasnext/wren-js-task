@@ -1,7 +1,6 @@
 Todo
 ----
 
-5/ Use the Canvas API to draw a green rectangle 
 
 x/ Use the React hook useRef, so that we can interact with the canvas
 
@@ -12,6 +11,8 @@ x/ Create a CSS file for the colours and graphics
 
 Done
 ----
+5/ Use the Canvas API to draw a green rectangle 
+
 4/ Convert to the React Hooks style
 
 3/ Follow the instuctions in Readme.md
