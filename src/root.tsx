@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useEffect } from 'react';
 import { useRef } from 'react';
- 
+
 export const Root = (): JSX.Element => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
      
@@ -22,13 +22,17 @@ export const Root = (): JSX.Element => {
         <div className="buttonsArea"
              style={{ width: '200px', height: '200px'}}
         >
-          <h1>Buttons Area</h1>
+        <button 
+          className = "createSheepButton"
+//          onClick   = {() => props.props.sendPlayState (props.eventId)} 
+        >
+          {'Create Sheep'}
+        </button>          <h1>Buttons Area</h1>
         </div>
         <div className="field">
-         <canvas 
-               ref={canvasRef} 
-//               style={{ width: '200px', height: '200px' }}
-              />
+          <canvas ref={canvasRef}/>
         </div>
       </div>
     }
+
+    

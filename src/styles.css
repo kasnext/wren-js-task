@@ -1,0 +1,24 @@
+.buttonsArea {
+  width: 200px;
+  height: 200px;
+  background-color: gray;
+}
+
+.field {
+  width: 200px;
+  height: 200px;
+  background-color: black;
+}
+
+.createSheepButton {
+  font-size: 22px;
+  font-family: Helvetica, Arial, sans-serif;
+  color: #FFFFFF;
+  padding: 5px;
+  margin: 5px 5px;
+  text-shadow: 2px 2px 1px #595959;
+  text-align: center;
+  filter: dropshadow(color=#595959, offx=1, offy=1);
+  text-decoration: none;
+}
+

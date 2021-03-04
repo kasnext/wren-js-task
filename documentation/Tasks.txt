@@ -1,12 +1,22 @@
 Todo
 ----
 
+8/ Add the fields for specifying the sheep's name and sex
+
+9/ Add an event handler to the createSheep button, that will display a message with the sheep name and sex
+
+10/ Add a sheep icon and display it in the field
+
+11/ Change the createSheep event handler so that it creates the sheep and displays it in the centre of the field
+
 
 x/ Create a CSS file for the colours and graphics
 
 
 Done
 ----
+7/ Add a button to create a sheep
+
 6/ Organise the UI into 2 areas - a button area and a field 
 
 5/ Use the Canvas API to draw a green rectangle 

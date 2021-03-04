@@ -5,6 +5,9 @@ import * as ReactDOM from 'react-dom';
 
 import { Root } from './root';
 
+import './styles.css';
+
+
 function main() {
     ReactDOM.render(
         React.createElement(Root),
