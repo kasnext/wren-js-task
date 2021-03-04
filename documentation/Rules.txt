@@ -1,2 +1,15 @@
-Rules
------
+Given Breeding Rules
+--------------------
+1/ Branded sheep are not able to breed
+2/ The probability of a female sheep giving birth after mating is 50%
+
+Assumed Breeding Rules
+-----------------------
+1/ Only a pair of male and female sheep are able to breed
+2/ The sex of the newborn sheep will be random, with a weighting of male 50% of the time
+3/ Male sheep do not give birth
+4/ A sheep can only breed with one other sheep at any one time
+5/ Breeding between 2 sheep will occur randomly 
+6/ A sheep will attemp to breed approximately every 5 seconds
+
+

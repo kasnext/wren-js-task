@@ -2,15 +2,13 @@ Todo
 ----
 
 
-x/ Use the React hook useRef, so that we can interact with the canvas
-
-x/ Organise the UI into 2 areas - a button area and a field 
-
 x/ Create a CSS file for the colours and graphics
 
 
 Done
 ----
+6/ Organise the UI into 2 areas - a button area and a field 
+
 5/ Use the Canvas API to draw a green rectangle 
 
 4/ Convert to the React Hooks style
