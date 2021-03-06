@@ -1,8 +1,19 @@
 Todo
 ----
 
+11/ Install jest 
+  - npm install --save-dev jest
+  - npm install --save-dev ts-jest
+  - npm install --save-dev @types/jest
 
-11/ Change the createSheep event handler so that it creates the sheep and displays it in the centre of the field
+12/ Create a failing test, then make it pass
+
+13/ Create a new sheep object and test it
+
+14/ Add states to the sheep
+
+x/ Resize the sheep image and draw in the centre of the field
+
 
 x/ The field is refreshing too often
 

@@ -10,7 +10,7 @@ const displaySheep = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
       const img = new Image();        
       img.src = '../media/sheep.gif';        
       img.onload = () => 
-        context.drawImage(img, 0, 0)
+        context.drawImage(img, 50, 50)
     }
   }
 }
