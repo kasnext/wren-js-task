@@ -9,14 +9,16 @@ import { flow } from "fp-ts/lib/function"
 test.skip ('SanityTest', () => expect (true).toBe (true) )
 
 // One sheep
-test.only ('createSheep', () => testCreateSheep () )
-test.only ('testMoveOneSheepOneSquare', () => testMoveOneSheepOneSquare () )
-test.only ('testMoveOneSheepRight', () => testMoveOneSheepRight () )
-test.only ('testMoveOneSheepDown', () => testMoveOneSheepDown () )
+test.skip ('createSheep', () => testCreateSheep () )
+test.skip ('testMoveOneSheepOneSquare', () => testMoveOneSheepOneSquare () )
+test.skip ('testMoveOneSheepRight', () => testMoveOneSheepRight () )
+test.skip ('testMoveOneSheepDown', () => testMoveOneSheepDown () )
+test.only ('testMoveOneSheepDownRight', () => testMoveOneSheepDownRight () )
+test.only ('testMoveOneSheepDownRight100', () => testMoveOneSheepDownRight100 () )
 
 // Array of sheep
-test.only ('createArrayOfSheep', () => testCreateArrayOfSheep () )
-test.only ('testUpdateArrayOfSheep', () => testUpdateArrayOfSheep () )
+test.skip ('createArrayOfSheep', () => testCreateArrayOfSheep () )
+test.skip ('testUpdateArrayOfSheep', () => testUpdateArrayOfSheep () )
 
 
 //--------------------------------------------------------
@@ -82,6 +84,27 @@ const testMoveOneSheepOneSquare =
       expect (sheep.point.y).toBe (1)
     }
   )
+
+  const testMoveOneSheepDownRight = 
+  flow (
+    createFlossy,
+    moveSheepInDirection (1, 7/8*(2*Math.PI) ),
+    sheep => {
+      expect (sheep.point.x).toBe (1)
+      expect (sheep.point.y).toBe (1)
+    }
+  )
+
+  const testMoveOneSheepDownRight100 = 
+  flow (
+    createFlossy,
+    moveSheepInDirection (100, 7/8*(2*Math.PI) ),
+    sheep => {
+      expect (sheep.point.x).toBe (Math.round(100*(1/Math.SQRT2)))
+      expect (sheep.point.y).toBe (Math.round(100*(1/Math.SQRT2)))
+    }
+  )
+
 
 //--------------------------------------------------------
 
