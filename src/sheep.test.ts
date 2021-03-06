@@ -15,8 +15,8 @@ test.skip ('testMoveOneSheepRight', () => testMoveOneSheepRight () )
 test.skip ('testMoveOneSheepDown', () => testMoveOneSheepDown () )
 test.skip ('testMoveOneSheepDownRight', () => testMoveOneSheepDownRight () )
 test.skip ('testMoveOneSheepDownRight100', () => testMoveOneSheepDownRight100 () )
-test.only ('testUpdateBasicFemaleSheepBehaviour', () => testUpdateBasicFemaleSheepBehaviour () )
-test.only ('testUpdateBasicMaleSheepBehaviour', () => testUpdateBasicMaleSheepBehaviour () )
+test.only ('testUpdateFemaleSheepBasicBehaviour', () => testUpdateFemaleSheepBasicBehaviour () )
+test.only ('testUpdateMaleSheepBasicBehaviour', () => testUpdateMaleSheepBasicBehaviour () )
 
 
 // Array of sheep
@@ -28,25 +28,33 @@ test.skip ('testSheepHaveCollided2', () => testSheepHaveCollided2 () )
 
 //--------------------------------------------------------
 
-const createFlossy = () => createSheep (0, 'Flossy', false, {x: 0, y: 0})
-const createFred = () => createSheep (0, 'Fred', true, {x: 100, y: 100})
+const createFlossy  = (): ISheep => createSheep (0, 'Flossy', false, {x: 0, y: 0})
+const createFred    = (): ISheep => createSheep (0, 'Fred', true, {x: 100, y: 100})
 
 
 const moveSheepOneSquare =
-(sheep: ISheep) =>
+(sheep: ISheep)
+: ISheep =>
   produce (sheep, draft => {draft.point.x = sheep.point.x + 1})      
 
 
 // The supplied angle is in radians (between 0 and 2 PI measured anti-clockwise)
 // The returned position will be an integer
 // The direction should match the HTML canvas, so x increase to the right and y increases towards the bottom 
-const moveDraftSheepInDirection = (quantity: number, angle: number) => (sheep:ISheep) => (draft: Draft <ISheep>) =>
+const moveDraftSheepInDirection = 
+(quantity: number, angle: number) => 
+(sheep:ISheep) => 
+(draft: Draft <ISheep>)
+: void =>
 {
   draft.point.x = sheep.point.x + Math.round (quantity * Math.cos (angle)) 
   draft.point.y = sheep.point.y - Math.round (quantity * Math.sin (angle)) 
 }      
   
-const moveSheepInDirection = (quantity: number, angle: number) => (sheep: ISheep) =>
+const moveSheepInDirection = 
+(quantity: number, angle: number) => 
+(sheep: ISheep)
+: ISheep =>
   produce (sheep, draft => 
     moveDraftSheepInDirection (quantity, angle) (sheep) (draft) 
   )
@@ -56,51 +64,66 @@ const moveSheepInDirection = (quantity: number, angle: number) => (sheep: ISheep
 const haveSheepCollided = 
 (distance: number) =>
 (sheep1: ISheep) => 
-(sheep2: ISheep) => 
+(sheep2: ISheep)
+: boolean => 
   pipe (
     Math.pow (sheep1.point.x - sheep2.point.x, 2) + Math.pow (sheep1.point.y - sheep2.point.y, 2),
     Math.sqrt,
     dist => dist <= distance
   )
 
+const getSheepNextBasicBehaviour =
+(sheep: ISheep)
+: TSheepBehaviour =>
+  sheep.behaviour === TSheepBehaviour.MATING 
+  ? sheep.isMale 
+    ? TSheepBehaviour.RECOVERING1
+    : TSheepBehaviour.PREGNANT
+  : sheep.behaviour === TSheepBehaviour.PREGNANT
+    ? TSheepBehaviour.BIRTHING
+    : sheep.behaviour === TSheepBehaviour.BIRTHING
+      ? TSheepBehaviour.RECOVERING1
+      : sheep.behaviour === TSheepBehaviour.RECOVERING1
+        ? TSheepBehaviour.RECOVERING2
+        : sheep.behaviour === TSheepBehaviour.RECOVERING2
+          ? TSheepBehaviour.IDLE
+          : sheep.behaviour
 
-const updateBasicSheepBehaviour =
-(sheep: ISheep) =>
+  
+const updateSheepBasicBehaviour =
+(sheep: ISheep)
+: ISheep =>
   produce (sheep, draft => {
-    sheep.behaviour === TSheepBehaviour.MATING 
-    ? sheep.isMale 
-      ? draft.behaviour = TSheepBehaviour.RECOVERING1
-      : draft.behaviour = TSheepBehaviour.PREGNANT
-    : sheep.behaviour === TSheepBehaviour.PREGNANT
-      ? draft.behaviour = TSheepBehaviour.BIRTHING
-      : sheep.behaviour === TSheepBehaviour.BIRTHING
-        ? draft.behaviour = TSheepBehaviour.RECOVERING1
-        : sheep.behaviour === TSheepBehaviour.RECOVERING1
-          ? draft.behaviour = TSheepBehaviour.RECOVERING2
-          : sheep.behaviour === TSheepBehaviour.RECOVERING2
-            ? draft.behaviour = TSheepBehaviour.IDLE
-            : draft
-})
+    draft.behaviour = getSheepNextBasicBehaviour (sheep)
+  })
 
+// const getSheepMatingPairs =
+// (sheepArray: ISheep[]) =>
+//   {
+//     const maleSheep = sheepArray.filter ( sheep => sheep.isMale && sheep.behaviour == TSheepBehaviour.IDLE)
+//     const femaleSheep = sheepArray.filter ( sheep => !sheep.isMale && sheep.behaviour == TSheepBehaviour.IDLE)
+
+//   }
 
 //--------------------------------------------------------
 
-const createArrayOfSheep1 = () =>
+const createArrayOfSheep1 = (): ISheep[] =>
   [createFlossy (), createFred ()]
 
 const moveOneSheepInArrayOneSquare =
-(sheep: ISheep[]) => 
+(sheep: ISheep[])
+: ISheep[] => 
   sheep.map ( sheepX => moveSheepOneSquare (sheepX))
 
 //--------------------------------------------------------
 
-const testCreateSheep = 
+const testCreateSheep: () => void =
   flow (
     createFlossy,
     sheep => expect (sheep.name).toBe ('Flossy'),
   )
 
-const testMoveOneSheepOneSquare = 
+const testMoveOneSheepOneSquare: () => void = 
   flow (
     createFlossy,
     moveSheepOneSquare,
@@ -108,7 +131,7 @@ const testMoveOneSheepOneSquare =
   )
 
   
-  const testMoveOneSheepRight = 
+const testMoveOneSheepRight: () => void =
   flow (
     createFlossy,
     moveSheepInDirection (1, 0),
@@ -118,7 +141,7 @@ const testMoveOneSheepOneSquare =
     }
   )
 
-  const testMoveOneSheepDown = 
+const testMoveOneSheepDown: () => void =
   flow (
     createFlossy,
     moveSheepInDirection (1, 3/4*(2*Math.PI) ),
@@ -128,7 +151,7 @@ const testMoveOneSheepOneSquare =
     }
   )
 
-  const testMoveOneSheepDownRight = 
+const testMoveOneSheepDownRight: () => void =
   flow (
     createFlossy,
     moveSheepInDirection (1, 7/8*(2*Math.PI) ),
@@ -138,7 +161,7 @@ const testMoveOneSheepOneSquare =
     }
   )
 
-  const testMoveOneSheepDownRight100 = 
+const testMoveOneSheepDownRight100: () => void =
   flow (
     createFlossy,
     moveSheepInDirection (100, 7/8*(2*Math.PI) ),
@@ -151,14 +174,14 @@ const testMoveOneSheepOneSquare =
 
 //--------------------------------------------------------
 
-const testCreateArrayOfSheep = 
+const testCreateArrayOfSheep: () => void =
   flow (
     createArrayOfSheep1,
     sheepArray => expect (sheepArray.length).toBe (2),
   )
 
 
-const testUpdateArrayOfSheep = 
+const testUpdateArrayOfSheep: () => void =
   flow (
     createArrayOfSheep1,
     moveOneSheepInArrayOneSquare,
@@ -168,59 +191,61 @@ const testUpdateArrayOfSheep =
     }
   )
 
-  const testSheepHaveCollided1 = () => 
+const testSheepHaveCollided1 = (): void => 
   pipe (
     haveSheepCollided (140) (createFlossy ()) (createFred ()) ,
     result => expect (result).toBe (false),
   )
 
-  const testSheepHaveCollided2 = () => 
+const testSheepHaveCollided2 = (): void =>
   pipe (
     haveSheepCollided (150) (createFlossy ()) (createFred ()) ,
     result => expect (result).toBe (true),
   )
 
-  const compareSheepBehaviour = 
-  (behaviour: TSheepBehaviour) => (sheep: ISheep) => 
+const compareSheepBehaviour = 
+(behaviour: TSheepBehaviour) => 
+(sheep: ISheep)
+: ISheep => 
   {
     expect (sheep.behaviour).toBe (behaviour)
     return sheep
   }
 
-  const testUpdateBasicFemaleSheepBehaviour = () => 
+  const testUpdateFemaleSheepBasicBehaviour = (): void => 
   pipe (
     createFlossy (),
     compareSheepBehaviour (TSheepBehaviour.IDLE),
-    updateBasicSheepBehaviour,
+    updateSheepBasicBehaviour,
     compareSheepBehaviour (TSheepBehaviour.IDLE),
     sheep => produce (sheep, draft => {draft.behaviour = TSheepBehaviour.MATING} ),
     compareSheepBehaviour (TSheepBehaviour.MATING),
-    updateBasicSheepBehaviour,
+    updateSheepBasicBehaviour,
     compareSheepBehaviour (TSheepBehaviour.PREGNANT),
-    updateBasicSheepBehaviour,
+    updateSheepBasicBehaviour,
     compareSheepBehaviour (TSheepBehaviour.BIRTHING),
-    updateBasicSheepBehaviour,
+    updateSheepBasicBehaviour,
     compareSheepBehaviour (TSheepBehaviour.RECOVERING1),
-    updateBasicSheepBehaviour,
+    updateSheepBasicBehaviour,
     compareSheepBehaviour (TSheepBehaviour.RECOVERING2),
-    updateBasicSheepBehaviour,
+    updateSheepBasicBehaviour,
     compareSheepBehaviour (TSheepBehaviour.IDLE),
     sheep => expect (sheep.behaviour).toBe (TSheepBehaviour.IDLE) 
   )
 
-const testUpdateBasicMaleSheepBehaviour = () => 
+const testUpdateMaleSheepBasicBehaviour = (): void => 
 pipe (
   createFred (),
   compareSheepBehaviour (TSheepBehaviour.IDLE),
-  updateBasicSheepBehaviour,
+  updateSheepBasicBehaviour,
   compareSheepBehaviour (TSheepBehaviour.IDLE),
   sheep => produce (sheep, draft => {draft.behaviour = TSheepBehaviour.MATING} ),
   compareSheepBehaviour (TSheepBehaviour.MATING),
-  updateBasicSheepBehaviour,
+  updateSheepBasicBehaviour,
   compareSheepBehaviour (TSheepBehaviour.RECOVERING1),
-  updateBasicSheepBehaviour,
+  updateSheepBasicBehaviour,
   compareSheepBehaviour (TSheepBehaviour.RECOVERING2),
-  updateBasicSheepBehaviour,
+  updateSheepBasicBehaviour,
   compareSheepBehaviour (TSheepBehaviour.IDLE),
   sheep => expect (sheep.behaviour).toBe (TSheepBehaviour.IDLE) 
 )
