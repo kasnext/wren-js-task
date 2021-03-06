@@ -9,7 +9,21 @@ Assumed Breeding Rules
 2/ The sex of the newborn sheep will be random, with a weighting of male 50% of the time
 3/ Male sheep do not give birth
 4/ A sheep can only breed with one other sheep at any one time
-5/ Breeding between 2 sheep will occur randomly 
-6/ A sheep will attemp to breed approximately every 5 seconds
+5/ Breeding between 2 sheep will occur when 
+  - they are within a certain distance of each other  
+  - they are both in the idle state
+
+Sheep States
+------------
+new
+idle
+mating
+birthing
+recovering1
+recovering2
+newborn1
+newborn2
+
+
 
 

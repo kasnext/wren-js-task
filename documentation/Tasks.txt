@@ -1,15 +1,6 @@
 Todo
 ----
 
-11/ Install jest 
-  - npm install --save-dev jest
-  - npm install --save-dev ts-jest
-  - npm install --save-dev @types/jest
-
-12/ Create a failing test, then make it pass
-
-13/ Create a new sheep object and test it
-
 14/ Add states to the sheep
 
 x/ Resize the sheep image and draw in the centre of the field
@@ -22,6 +13,16 @@ x/ Create a CSS file for the colours and graphics
 
 Done
 ----
+13/ Create a new sheep object and test it
+  - had to create the jest.config.js file
+  
+12/ Create a failing test, then make it pass
+
+11/ Install jest 
+  - npm install --save-dev jest
+  - npm install --save-dev ts-jest
+  - npm install --save-dev @types/jest
+
 10/ Add an event handler to the createSheep button, that will display the sheep on the canvas
 
 9/ Add a sheep icon and display it
