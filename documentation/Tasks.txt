@@ -9,7 +9,9 @@ x/ The field is refreshing too often
 
 Done
 ----
-18/ Add a anther test to move a sheep in a given direction
+19/ Add a sheep collision detection test
+
+18/ Add a another test to move a sheep in a given direction
 
 17/ Add a test to move a sheep in a given direction
 

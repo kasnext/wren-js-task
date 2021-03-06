@@ -2,7 +2,7 @@ import { createSheep, ISheep } from "./sheep"
 
 // 3rd party imports
 import produce from 'immer';
-import { flow } from "fp-ts/lib/function"
+import { flow, pipe } from "fp-ts/lib/function"
 
 
 // Sanity test
@@ -13,12 +13,15 @@ test.skip ('createSheep', () => testCreateSheep () )
 test.skip ('testMoveOneSheepOneSquare', () => testMoveOneSheepOneSquare () )
 test.skip ('testMoveOneSheepRight', () => testMoveOneSheepRight () )
 test.skip ('testMoveOneSheepDown', () => testMoveOneSheepDown () )
-test.only ('testMoveOneSheepDownRight', () => testMoveOneSheepDownRight () )
-test.only ('testMoveOneSheepDownRight100', () => testMoveOneSheepDownRight100 () )
+test.skip ('testMoveOneSheepDownRight', () => testMoveOneSheepDownRight () )
+test.skip ('testMoveOneSheepDownRight100', () => testMoveOneSheepDownRight100 () )
+
 
 // Array of sheep
 test.skip ('createArrayOfSheep', () => testCreateArrayOfSheep () )
 test.skip ('testUpdateArrayOfSheep', () => testUpdateArrayOfSheep () )
+test.only ('testSheepHaveCollided1', () => testSheepHaveCollided1 () )
+test.only ('testSheepHaveCollided2', () => testSheepHaveCollided2 () )
 
 
 //--------------------------------------------------------
@@ -26,7 +29,7 @@ test.skip ('testUpdateArrayOfSheep', () => testUpdateArrayOfSheep () )
 const createFlossy = () => createSheep (0, 'Flossy', false, {x: 0, y: 0})
 const createFred = () => createSheep (0, 'Fred', true, {x: 100, y: 100})
 
-const createArrayOfSheep = () =>
+const createArrayOfSheep1 = () =>
   [createFlossy (), createFred ()]
 
 const moveSheepOneSquare =
@@ -47,6 +50,17 @@ const moveSheepInDirection = (quantity: number, angle: number) => (sheep: ISheep
 const moveOneSheepInArrayOneSquare =
 (sheep: ISheep[]) => 
   sheep.map ( sheepX => moveSheepOneSquare (sheepX))
+
+// The sheep have collided if the distance between them is less than or equal to the supplied distance
+const haveSheepCollided = 
+(distance: number) =>
+(sheep1: ISheep) => 
+(sheep2: ISheep) => 
+  pipe (
+    Math.pow (sheep1.point.x - sheep2.point.x, 2) + Math.pow (sheep1.point.y - sheep2.point.y, 2),
+    Math.sqrt,
+    dist => dist <= distance
+  )
 
 
 //--------------------------------------------------------
@@ -110,14 +124,14 @@ const testMoveOneSheepOneSquare =
 
 const testCreateArrayOfSheep = 
   flow (
-    createArrayOfSheep,
+    createArrayOfSheep1,
     sheepArray => expect (sheepArray.length).toBe (2),
   )
 
 
 const testUpdateArrayOfSheep = 
   flow (
-    createArrayOfSheep,
+    createArrayOfSheep1,
     moveOneSheepInArrayOneSquare,
     sheepArray => {
       expect (sheepArray.length).toBe (2),
@@ -125,4 +139,17 @@ const testUpdateArrayOfSheep =
     }
   )
 
+  const testSheepHaveCollided1 = () => 
+  pipe (
+    haveSheepCollided (140) (createFlossy ()) (createFred ()) ,
+    result => expect (result).toBe (false),
+  )
 
+  const testSheepHaveCollided2 = () => 
+  pipe (
+    haveSheepCollided (150) (createFlossy ()) (createFred ()) ,
+    result => expect (result).toBe (true),
+  )
+
+
+  
