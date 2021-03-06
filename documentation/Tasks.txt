@@ -1,9 +1,7 @@
 Todo
 ----
 
-
 x/ Resize the sheep image and draw in the centre of the field
-
 
 x/ The field is refreshing too often
 
@@ -12,6 +10,8 @@ x/ Create a CSS file for the colours and graphics
 
 Done
 ----
+17/ Add a test to move a sheep in a given direction
+
 16/ Add a test to update the position of one sheep in an array of sheep
   - npm install immer
 
