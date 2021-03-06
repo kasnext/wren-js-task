@@ -1,6 +1,9 @@
 Todo
 ----
 
+21/ Add sheep mating tests
+
+22/ Add sheep movement
 
 x/ Resize the sheep image and draw in the centre of the field
 
@@ -9,6 +12,8 @@ x/ The field is refreshing too often
 
 Done
 ----
+20/ Add basic sheep behaviour tests
+
 19/ Add a sheep collision detection test
 
 18/ Add a another test to move a sheep in a given direction

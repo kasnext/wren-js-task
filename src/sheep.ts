@@ -3,9 +3,10 @@ export interface TPoint {
   readonly y: number
 }
 
-enum TSheepState {
+export enum TSheepBehaviour {
   IDLE, 
   MATING, 
+  PREGNANT, 
   BIRTHING, 
   RECOVERING1, 
   RECOVERING2, 
@@ -18,7 +19,7 @@ export interface ISheep {
   readonly name: string // The answer is generated
   readonly isMale: boolean
   readonly point: TPoint,
-  readonly state: TSheepState,
+  readonly behaviour: TSheepBehaviour,
   readonly isBranded: boolean,
 }
 
@@ -33,7 +34,7 @@ export const createSheep =
     point: point,
     name: name,
     isMale: isMale,
-    state: TSheepState.IDLE,
+    behaviour: TSheepBehaviour.IDLE,
     isBranded: false,
   }
 }
