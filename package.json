@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "bootstrap": "^4.3.1",
+    "fp-ts": "^2.9.5",
     "react": "^16.8.5",
     "react-dom": "^16.8.5"
   }

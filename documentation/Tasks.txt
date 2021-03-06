@@ -1,7 +1,10 @@
 Todo
 ----
 
-14/ Add states to the sheep
+
+15/ Create an array of sheep
+
+x/ Update the states of the sheep
 
 x/ Resize the sheep image and draw in the centre of the field
 
@@ -13,9 +16,11 @@ x/ Create a CSS file for the colours and graphics
 
 Done
 ----
+14/ Install fp-ts and rewrite the test using flow
+
 13/ Create a new sheep object and test it
   - had to create the jest.config.js file
-  
+
 12/ Create a failing test, then make it pass
 
 11/ Install jest 
