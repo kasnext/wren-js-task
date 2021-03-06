@@ -13,16 +13,6 @@ Assumed Breeding Rules
   - they are within a certain distance of each other  
   - they are both in the idle state
 
-Sheep States
-------------
-new
-idle
-mating
-birthing
-recovering1
-recovering2
-newborn1
-newborn2
 
 
 
