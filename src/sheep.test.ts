@@ -3,6 +3,7 @@ import { createSheep, ISheep, TSheepBehaviour } from "./sheep"
 // 3rd party imports
 import {produce, Draft} from 'immer';
 import { flow, pipe } from "fp-ts/lib/function"
+import { isUndefined } from "util";
 
 
 // Sanity test
@@ -10,20 +11,28 @@ test.skip ('SanityTest', () => expect (true).toBe (true) )
 
 // One sheep
 test.skip ('createSheep', () => testCreateSheep () )
+
+// One sheep moving
 test.skip ('testMoveOneSheepOneSquare', () => testMoveOneSheepOneSquare () )
 test.skip ('testMoveOneSheepRight', () => testMoveOneSheepRight () )
 test.skip ('testMoveOneSheepDown', () => testMoveOneSheepDown () )
 test.skip ('testMoveOneSheepDownRight', () => testMoveOneSheepDownRight () )
 test.skip ('testMoveOneSheepDownRight100', () => testMoveOneSheepDownRight100 () )
-test.only ('testUpdateFemaleSheepBasicBehaviour', () => testUpdateFemaleSheepBasicBehaviour () )
-test.only ('testUpdateMaleSheepBasicBehaviour', () => testUpdateMaleSheepBasicBehaviour () )
+
+// One sheep behaviour
+test.skip ('testUpdateFemaleSheepBasicBehaviour', () => testUpdateFemaleSheepBasicBehaviour () )
+test.skip ('testUpdateMaleSheepBasicBehaviour', () => testUpdateMaleSheepBasicBehaviour () )
 
 
 // Array of sheep
 test.skip ('createArrayOfSheep', () => testCreateArrayOfSheep () )
 test.skip ('testUpdateArrayOfSheep', () => testUpdateArrayOfSheep () )
-test.skip ('testSheepHaveCollided1', () => testSheepHaveCollided1 () )
-test.skip ('testSheepHaveCollided2', () => testSheepHaveCollided2 () )
+test.skip ('testSheepHaveCollided1', () => testSheepHaveCollidedFalse () )
+test.skip ('testSheepHaveCollided2', () => testSheepHaveCollidedTrue () )
+
+// Array of sheep mating behaviour
+test.only ('testCanSheepMateTrue', () => testCanSheepMateTrue () )
+test.only ('testCanSheepMateFalse', () => testCanSheepMateFalse () )
 
 
 //--------------------------------------------------------
@@ -71,6 +80,28 @@ const haveSheepCollided =
     Math.sqrt,
     dist => dist <= distance
   )
+
+// This searches through the array looking for a sheep that meets the following criteria
+// 1/ Of the opposite sex
+// 2/ Within the supplied distance
+// 3/ In the IDLE state
+// Note that this does not "pair up" the sheep, so multiple male sheep could be mating with the same female, and vice versa
+const canSheepMate =
+(distance: number) =>
+(sheep: ISheep) =>
+(sheepArray: ISheep[])
+: boolean =>
+  !isUndefined (
+    sheepArray.find ( sheepX =>
+      sheepX.behaviour === TSheepBehaviour.IDLE 
+      && sheep.behaviour === TSheepBehaviour.IDLE
+      && sheepX.isMale !== sheep.isMale
+      && !sheep.isBranded 
+      && !sheepX.isBranded
+      && haveSheepCollided (distance) (sheep) (sheepX)
+    ) 
+  )
+
 
 const getSheepNextBasicBehaviour =
 (sheep: ISheep)
@@ -191,17 +222,33 @@ const testUpdateArrayOfSheep: () => void =
     }
   )
 
-const testSheepHaveCollided1 = (): void => 
+const testSheepHaveCollidedFalse = (): void => 
   pipe (
     haveSheepCollided (140) (createFlossy ()) (createFred ()) ,
     result => expect (result).toBe (false),
   )
 
-const testSheepHaveCollided2 = (): void =>
+const testSheepHaveCollidedTrue = (): void =>
   pipe (
     haveSheepCollided (150) (createFlossy ()) (createFred ()) ,
     result => expect (result).toBe (true),
   )
+
+const testCanSheepMateFalse: () => void =
+  flow (
+    createArrayOfSheep1,
+    sheepArray => canSheepMate (140) (sheepArray[0]) (sheepArray) ,
+    result => expect (result).toBe (false),
+  )
+
+const testCanSheepMateTrue: () => void =
+  flow (
+    createArrayOfSheep1,
+    sheepArray => canSheepMate (150) (sheepArray[0]) (sheepArray) ,
+    result => expect (result).toBe (true),
+  )
+
+  
 
 const compareSheepBehaviour = 
 (behaviour: TSheepBehaviour) => 

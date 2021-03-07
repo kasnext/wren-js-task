@@ -10,8 +10,8 @@ export enum TSheepBehaviour {
   BIRTHING, 
   RECOVERING1, 
   RECOVERING2, 
-  NEWBORN1, 
-  NEWBORN2, 
+  NEWBORN, 
+  LAMB, 
 }
 
 export interface ISheep {

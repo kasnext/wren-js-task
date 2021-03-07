@@ -5,14 +5,21 @@ Given Breeding Rules
 
 Assumed Breeding Rules
 -----------------------
-1/ Only a pair of male and female sheep are able to breed
+1/ Mating between 2 sheep will occur when 
+  - they are within a certain distance of each other  
+  - they are both currently in the idle state
+  - one is male and the other is female
 2/ The sex of the newborn sheep will be random, with a weighting of male 50% of the time
 3/ Male sheep do not give birth
-4/ A sheep can only breed with one other sheep at any one time
-5/ Breeding between 2 sheep will occur when 
-  - they are within a certain distance of each other  
-  - they are both in the idle state
+4/ After mating, male and female sheep will have a short period of recovery during which they cannot mate 
+5/ Newborn sheep will not be able to mate until they are fully grown
+6/ While in the any state except MATING and BIRTHING, the sheep will move randomly around the field  
 
+Sheep State Changes
+-------------------
+Male:     IDLE -> MATING -> RECOVERING1 -> RECOVERING2 -> IDLE
+Female:   IDLE -> MATING -> PREGNANT -> BIRTHING -> RECOVERING1 -> RECOVERING2 -> IDLE
+Newborn:  NEWBORN -> LAMB -> IDLE
 
 
 
