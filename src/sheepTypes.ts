@@ -13,8 +13,7 @@ export enum TSheepBehaviour {
   MATING, 
   PREGNANT, 
   BIRTHING, 
-  RECOVERING1, 
-  RECOVERING2, 
+  RECOVERING, 
   NEWBORN, 
   LAMB, 
 }
@@ -34,17 +33,3 @@ export interface ISheep {
 }
 
 
-export const createSheep = 
-(id: number, name: string, sex: TSheepSex, point: IPoint)
-: ISheep => {
-  // This is the syntax to create an object from an interface:
-  return { 
-    // DB fields
-    id: id,
-    point: point,
-    name: name,
-    sex: sex,
-    behaviour: TSheepBehaviour.IDLE,
-    isBranded: false,
-  }
-}

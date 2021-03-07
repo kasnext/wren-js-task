@@ -17,8 +17,8 @@ Assumed Breeding Rules
 
 Sheep State Changes
 -------------------
-Male:     IDLE -> MATING -> RECOVERING1 -> RECOVERING2 -> IDLE
-Female:   IDLE -> MATING -> PREGNANT -> BIRTHING -> RECOVERING1 -> RECOVERING2 -> IDLE
+Male:     IDLE -> MATING -> RECOVERING -> IDLE
+Female:   IDLE -> MATING -> PREGNANT -> BIRTHING -> RECOVERING -> IDLE
 Newborn:  NEWBORN -> LAMB -> IDLE
 
 

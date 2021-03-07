@@ -1,9 +1,37 @@
-import { createSheep, ISheep, IPoint, TSheepBehaviour, TSheepSex, IBox } from "./sheepTypes"
+import { ISheep, IPoint, TSheepBehaviour, TSheepSex, IBox } from "./sheepTypes"
 
 // 3rd party imports
 import {produce} from 'immer';
-import { flow, pipe } from "fp-ts/lib/function"
+import { pipe, flow } from "fp-ts/lib/function"
 import { isUndefined } from "util";
+
+
+export const createSheepWithBehaviour = 
+(id: number, name: string, sex: TSheepSex, point: IPoint, behaviour: TSheepBehaviour)
+: ISheep => {
+  // This is the syntax to create an object from an interface:
+  return { 
+    // DB fields
+    id: id,
+    point: point,
+    name: name,
+    sex: sex,
+    behaviour: behaviour,
+    isBranded: false,
+  }
+}
+
+
+export const createSheep = 
+(id: number, name: string, sex: TSheepSex, point: IPoint)
+: ISheep => 
+  createSheepWithBehaviour (id, name, sex, point, TSheepBehaviour.IDLE)
+
+
+export const createNewborn = 
+(id: number, name: string, sex: TSheepSex, point: IPoint)
+: ISheep =>
+  createSheepWithBehaviour (id, name, sex, point, TSheepBehaviour.NEWBORN)
 
 
 export const brandSheep = 
@@ -93,17 +121,19 @@ export const getSheepNextBasicBehaviour =
 : TSheepBehaviour =>
   sheep.behaviour === TSheepBehaviour.MATING 
   ? sheep.sex === TSheepSex.MALE 
-    ? TSheepBehaviour.RECOVERING1
+    ? TSheepBehaviour.RECOVERING
     : TSheepBehaviour.PREGNANT
   : sheep.behaviour === TSheepBehaviour.PREGNANT
     ? TSheepBehaviour.BIRTHING
     : sheep.behaviour === TSheepBehaviour.BIRTHING
-      ? TSheepBehaviour.RECOVERING1
-      : sheep.behaviour === TSheepBehaviour.RECOVERING1
-        ? TSheepBehaviour.RECOVERING2
-        : sheep.behaviour === TSheepBehaviour.RECOVERING2
-          ? TSheepBehaviour.IDLE
-          : sheep.behaviour
+      ? TSheepBehaviour.RECOVERING
+      : sheep.behaviour === TSheepBehaviour.RECOVERING
+        ? TSheepBehaviour.IDLE
+        : sheep.behaviour === TSheepBehaviour.NEWBORN
+          ? TSheepBehaviour.LAMB
+          : sheep.behaviour === TSheepBehaviour.LAMB
+            ? TSheepBehaviour.IDLE
+            : sheep.behaviour
 
   
 export const updateSheepBasicBehaviour =
@@ -113,4 +143,38 @@ export const updateSheepBasicBehaviour =
     draft.behaviour = getSheepNextBasicBehaviour (sheep)
   })
 
+export const updateSheepArrayBasicBehaviour =
+(sheepArray: ISheep[])
+: ISheep[] =>
+  produce (sheepArray, draft => {
+    draft.map ( draftSheep => draftSheep.behaviour = getSheepNextBasicBehaviour (draftSheep) )
+  })
 
+const getRandomSex: () => TSheepSex =
+  flow (
+    Math.random,
+    Math.round,
+    value => value === 0
+      ? TSheepSex.MALE
+      : TSheepSex.FEMALE
+  )
+
+export const updateSheepArrayBirthingBehaviour =
+(sheepArray: ISheep[])
+: ISheep[] => {
+  const newSheepArray: ISheep[] = [] 
+  sheepArray.map (sheep =>
+    sheep.behaviour === TSheepBehaviour.BIRTHING
+      ? newSheepArray.push ( createNewborn (-1, '', getRandomSex(), sheep.point) )
+      : undefined
+  )
+  return sheepArray.concat (newSheepArray) 
+}
+
+export const updateSheepArrayBasicAndBirthingBehaviour: 
+(sheepArray: ISheep[]) => 
+ISheep[] =
+  flow (
+    updateSheepArrayBasicBehaviour,
+    updateSheepArrayBirthingBehaviour,
+  )

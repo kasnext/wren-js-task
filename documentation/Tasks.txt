@@ -1,6 +1,11 @@
 Todo
 ----
 
+
+
+x/ Create more sheep images
+  - Pink, blue, green for female, male and branded
+
 x/ Resize the sheep image and draw in the centre of the field
 
 x/ The field is refreshing too often
@@ -9,6 +14,8 @@ x/ Remove the sheep id?
 
 Done
 ----
+24/ Create a newborn sheep after female is pregnant and test
+
 23/ Move sheep functions to a separate file
 
 22/ Add sheep movement tests - added a bounding box
