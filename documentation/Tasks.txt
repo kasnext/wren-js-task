@@ -1,8 +1,6 @@
 Todo
 ----
 
-
-
 x/ Resize the sheep image and draw in the centre of the field
 
 x/ The field is refreshing too often
