@@ -1,15 +1,18 @@
 Todo
 ----
 
-22/ Add sheep movement tests
+
 
 x/ Resize the sheep image and draw in the centre of the field
 
 x/ The field is refreshing too often
 
+x/ Remove the sheep id?
 
 Done
 ----
+22/ Add sheep movement tests - added a bounding box
+
 21/ Add sheep mating tests
 
 20/ Add basic sheep behaviour tests

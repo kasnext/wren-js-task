@@ -1,7 +1,7 @@
-import { createSheep, ISheep, TSheepBehaviour } from "./sheep"
+import { createSheep, ISheep, IPoint, TSheepBehaviour, TSheepSex, IBox } from "./sheep"
 
 // 3rd party imports
-import {produce, Draft} from 'immer';
+import {produce} from 'immer';
 import { flow, pipe } from "fp-ts/lib/function"
 import { isUndefined } from "util";
 
@@ -13,11 +13,14 @@ test.skip ('SanityTest', () => expect (true).toBe (true) )
 test.skip ('createSheep', () => testCreateSheep () )
 
 // One sheep moving
-test.skip ('testMoveOneSheepOneSquare', () => testMoveOneSheepOneSquare () )
-test.skip ('testMoveOneSheepRight', () => testMoveOneSheepRight () )
-test.skip ('testMoveOneSheepDown', () => testMoveOneSheepDown () )
-test.skip ('testMoveOneSheepDownRight', () => testMoveOneSheepDownRight () )
-test.skip ('testMoveOneSheepDownRight100', () => testMoveOneSheepDownRight100 () )
+test.only ('testMoveFlossyOneSquare', () => testMoveFlossyOneSquare () )
+test.only ('testMoveFlossyRight', () => testMoveFlossyRight () )
+test.only ('testMoveFlossyDown', () => testMoveFlossyDown () )
+test.only ('testMoveFlossyDownRight', () => testMoveFlossyDownRight () )
+test.only ('testMoveFlossyDownRight100', () => testMoveFlossyDownRight100 () )
+// Test that it remains within the boundary of the field
+test.only ('testMoveFlossyUpLeft100', () => testMoveFlossyUpLeft100 () )
+test.only ('testMoveFredDownRight100', () => testMoveFredDownRight100 () )
 
 // One sheep behaviour
 test.skip ('testUpdateFemaleSheepBasicBehaviour', () => testUpdateFemaleSheepBasicBehaviour () )
@@ -31,14 +34,23 @@ test.skip ('testSheepHaveCollided1', () => testSheepHaveCollidedFalse () )
 test.skip ('testSheepHaveCollided2', () => testSheepHaveCollidedTrue () )
 
 // Array of sheep mating behaviour
-test.only ('testCanSheepMateTrue', () => testCanSheepMateTrue () )
-test.only ('testCanSheepMateFalse', () => testCanSheepMateFalse () )
+test.skip ('testCanSheepMateTrue', () => testCanSheepMateTrue () )
+test.skip ('testCanSheepMateFalse', () => testCanSheepMateFalse () )
 
 
 //--------------------------------------------------------
 
-const createFlossy  = (): ISheep => createSheep (0, 'Flossy', false, {x: 0, y: 0})
-const createFred    = (): ISheep => createSheep (0, 'Fred', true, {x: 100, y: 100})
+const FIELD_BOX = {topLeft: {x: 0, y:0}, bottomRight: {x: 100, y:100}}
+
+// These are useful angles in radians
+const DIRECTION_RIGHT     = 0
+const DIRECTION_DOWN      = 3/4*(2*Math.PI)
+const DIRECTION_DOWNRIGHT = 7/8*(2*Math.PI)
+const DIRECTION_UPLEFT    = 3/8*(2*Math.PI)
+
+
+const createFlossy  = (): ISheep => createSheep (0, 'Flossy', TSheepSex.FEMALE, FIELD_BOX.topLeft)
+const createFred    = (): ISheep => createSheep (0, 'Fred', TSheepSex.MALE, FIELD_BOX.bottomRight)
 
 
 const moveSheepOneSquare =
@@ -50,22 +62,43 @@ const moveSheepOneSquare =
 // The supplied angle is in radians (between 0 and 2 PI measured anti-clockwise)
 // The returned position will be an integer
 // The direction should match the HTML canvas, so x increase to the right and y increases towards the bottom 
-const moveDraftSheepInDirection = 
+const movePointInDirection = 
 (quantity: number, angle: number) => 
-(sheep:ISheep) => 
-(draft: Draft <ISheep>)
-: void =>
-{
-  draft.point.x = sheep.point.x + Math.round (quantity * Math.cos (angle)) 
-  draft.point.y = sheep.point.y - Math.round (quantity * Math.sin (angle)) 
+(oldPoint: IPoint)
+: IPoint => {
+  return {
+    x: oldPoint.x + Math.round (quantity * Math.cos (angle)),
+    y: oldPoint.y - Math.round (quantity * Math.sin (angle)) 
+  }
+}
+      
+
+const limitNumberToRange = 
+(start: number, end: number, value: number)
+: number => 
+    Math.min ( Math.max (value, start), end)
+
+// Limit a given point to the dimensions of the supplied box
+const limitPointToBox = 
+(box: IBox) =>
+(oldPoint: IPoint)
+: IPoint => {
+  return {
+    x: limitNumberToRange (box.topLeft.x, box.bottomRight.x, oldPoint.x),
+    y: limitNumberToRange (box.topLeft.y, box.bottomRight.y, oldPoint.y)
+  }      
 }      
-  
+
 const moveSheepInDirection = 
+(box: IBox) =>
 (quantity: number, angle: number) => 
 (sheep: ISheep)
 : ISheep =>
   produce (sheep, draft => 
-    moveDraftSheepInDirection (quantity, angle) (sheep) (draft) 
+    {draft.point = pipe (
+      movePointInDirection (quantity, angle) (sheep.point),
+      limitPointToBox (box)
+    )}
   )
   
     
@@ -95,7 +128,7 @@ const canSheepMate =
     sheepArray.find ( sheepX =>
       sheepX.behaviour === TSheepBehaviour.IDLE 
       && sheep.behaviour === TSheepBehaviour.IDLE
-      && sheepX.isMale !== sheep.isMale
+      && sheepX.sex !== sheep.sex
       && !sheep.isBranded 
       && !sheepX.isBranded
       && haveSheepCollided (distance) (sheep) (sheepX)
@@ -107,7 +140,7 @@ const getSheepNextBasicBehaviour =
 (sheep: ISheep)
 : TSheepBehaviour =>
   sheep.behaviour === TSheepBehaviour.MATING 
-  ? sheep.isMale 
+  ? sheep.sex === TSheepSex.MALE 
     ? TSheepBehaviour.RECOVERING1
     : TSheepBehaviour.PREGNANT
   : sheep.behaviour === TSheepBehaviour.PREGNANT
@@ -128,13 +161,6 @@ const updateSheepBasicBehaviour =
     draft.behaviour = getSheepNextBasicBehaviour (sheep)
   })
 
-// const getSheepMatingPairs =
-// (sheepArray: ISheep[]) =>
-//   {
-//     const maleSheep = sheepArray.filter ( sheep => sheep.isMale && sheep.behaviour == TSheepBehaviour.IDLE)
-//     const femaleSheep = sheepArray.filter ( sheep => !sheep.isMale && sheep.behaviour == TSheepBehaviour.IDLE)
-
-//   }
 
 //--------------------------------------------------------
 
@@ -154,7 +180,7 @@ const testCreateSheep: () => void =
     sheep => expect (sheep.name).toBe ('Flossy'),
   )
 
-const testMoveOneSheepOneSquare: () => void = 
+const testMoveFlossyOneSquare: () => void = 
   flow (
     createFlossy,
     moveSheepOneSquare,
@@ -162,45 +188,69 @@ const testMoveOneSheepOneSquare: () => void =
   )
 
   
-const testMoveOneSheepRight: () => void =
+const testMoveFlossyRight: () => void =
   flow (
     createFlossy,
-    moveSheepInDirection (1, 0),
+    moveSheepInDirection (FIELD_BOX) (1, DIRECTION_RIGHT),
     sheep => {
       expect (sheep.point.x).toBe (1)
       expect (sheep.point.y).toBe (0)
     }
   )
 
-const testMoveOneSheepDown: () => void =
+const testMoveFlossyDown: () => void =
   flow (
     createFlossy,
-    moveSheepInDirection (1, 3/4*(2*Math.PI) ),
+    moveSheepInDirection (FIELD_BOX) (1, DIRECTION_DOWN),
     sheep => {
       expect (sheep.point.x).toBe (0)
       expect (sheep.point.y).toBe (1)
     }
   )
 
-const testMoveOneSheepDownRight: () => void =
+
+const testMoveFlossyDownRight: () => void =
   flow (
     createFlossy,
-    moveSheepInDirection (1, 7/8*(2*Math.PI) ),
+    moveSheepInDirection (FIELD_BOX) (1, DIRECTION_DOWNRIGHT ),
     sheep => {
       expect (sheep.point.x).toBe (1)
       expect (sheep.point.y).toBe (1)
     }
   )
 
-const testMoveOneSheepDownRight100: () => void =
+
+const testMoveFlossyDownRight100: () => void =
   flow (
     createFlossy,
-    moveSheepInDirection (100, 7/8*(2*Math.PI) ),
+    moveSheepInDirection (FIELD_BOX) (100, DIRECTION_DOWNRIGHT ),
     sheep => {
       expect (sheep.point.x).toBe (Math.round(100*(1/Math.SQRT2)))
       expect (sheep.point.y).toBe (Math.round(100*(1/Math.SQRT2)))
     }
   )
+
+const testMoveFlossyUpLeft100: () => void =
+  flow (
+    createFlossy,
+    moveSheepInDirection (FIELD_BOX) (100, DIRECTION_UPLEFT),
+    sheep => {
+      expect (sheep.point.x).toBe (FIELD_BOX.topLeft.x)
+      expect (sheep.point.y).toBe (FIELD_BOX.topLeft.y)
+    }
+  )
+
+  const testMoveFredDownRight100: () => void =
+  flow (
+    createFred,
+    moveSheepInDirection (FIELD_BOX) (100, DIRECTION_DOWNRIGHT),
+    sheep => {
+      expect (sheep.point.x).toBe (FIELD_BOX.bottomRight.x)
+      expect (sheep.point.y).toBe (FIELD_BOX.bottomRight.y)
+    }
+  )
+
+  
 
 
 //--------------------------------------------------------
