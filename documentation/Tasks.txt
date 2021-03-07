@@ -9,6 +9,8 @@ x/ Remove the sheep id?
 
 Done
 ----
+23/ Move sheep functions to a separate file
+
 22/ Add sheep movement tests - added a bounding box
 
 21/ Add sheep mating tests
