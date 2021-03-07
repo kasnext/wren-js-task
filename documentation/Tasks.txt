@@ -2,7 +2,6 @@ Todo
 ----
 
 
-
 x/ Create more sheep images
   - Pink, blue, green for female, male and branded
 
@@ -14,6 +13,8 @@ x/ Remove the sheep id?
 
 Done
 ----
+25/ Create function to move all the sheep randomly
+
 24/ Create a newborn sheep after female is pregnant and test
 
 23/ Move sheep functions to a separate file

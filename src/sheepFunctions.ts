@@ -6,6 +6,32 @@ import { pipe, flow } from "fp-ts/lib/function"
 import { isUndefined } from "util";
 
 
+const MOVEMENT_QUANTITY = 10
+
+//--------------------------------------------------------------------------------
+// Random functions
+//--------------------------------------------------------------------------------
+
+const getRandomSex: () => TSheepSex =
+  flow (
+    Math.random,
+    Math.round,
+    value => value === 0
+      ? TSheepSex.MALE
+      : TSheepSex.FEMALE
+  )
+
+const getRandomAngle: () => number =
+  flow (
+    Math.random,
+    value => value * 2 * Math.PI
+  )
+
+
+//--------------------------------------------------------------------------------
+// Sheep creation
+//--------------------------------------------------------------------------------
+
 export const createSheepWithBehaviour = 
 (id: number, name: string, sex: TSheepSex, point: IPoint, behaviour: TSheepBehaviour)
 : ISheep => {
@@ -21,7 +47,6 @@ export const createSheepWithBehaviour =
   }
 }
 
-
 export const createSheep = 
 (id: number, name: string, sex: TSheepSex, point: IPoint)
 : ISheep => 
@@ -34,11 +59,19 @@ export const createNewborn =
   createSheepWithBehaviour (id, name, sex, point, TSheepBehaviour.NEWBORN)
 
 
+//--------------------------------------------------------------------------------
+// Sheep branding
+//--------------------------------------------------------------------------------
+
 export const brandSheep = 
 (sheep: ISheep)
 : ISheep => 
     produce (sheep, draft => {draft.isBranded = true})  
 
+
+//--------------------------------------------------------------------------------
+// Sheep movement
+//--------------------------------------------------------------------------------
 
 // The supplied angle is in radians (between 0 and 2 PI measured anti-clockwise)
 // The returned position will be an integer
@@ -69,19 +102,27 @@ const limitPointToBox =
   }      
 }      
 
+const movePointInDirectionAndLimit = 
+(box: IBox) =>
+(quantity: number, angle: number) => 
+(point: IPoint)
+: IPoint =>
+  pipe (
+    movePointInDirection (quantity, angle) (point),
+    limitPointToBox (box)
+  )
+
 export const moveSheepInDirection = 
 (box: IBox) =>
 (quantity: number, angle: number) => 
 (sheep: ISheep)
 : ISheep =>
-  produce (sheep, draft => 
-    {draft.point = pipe (
-      movePointInDirection (quantity, angle) (sheep.point),
-      limitPointToBox (box)
-    )}
-  )
+  produce (sheep, draft => {
+    draft.point = movePointInDirectionAndLimit (box) (quantity, angle) (sheep.point)
+  })
   
     
+      
 // The sheep have collided if the distance between them is less than or equal to the supplied distance
 export const haveSheepCollided = 
 (distance: number) =>
@@ -94,27 +135,20 @@ export const haveSheepCollided =
     dist => dist <= distance
   )
 
-// This searches through the array looking for a sheep that meets the following criteria
-// 1/ Of the opposite sex
-// 2/ Within the supplied distance
-// 3/ In the IDLE state
-// Note that this does not "pair up" the sheep, so multiple male sheep could be mating with the same female, and vice versa
-export const canSheepMate =
-(distance: number) =>
-(sheep: ISheep) =>
+export const updateSheepArrayPosition =
+(box: IBox) =>
 (sheepArray: ISheep[])
-: boolean =>
-  !isUndefined (
-    sheepArray.find ( sheepX =>
-      sheepX.behaviour === TSheepBehaviour.IDLE 
-      && sheep.behaviour === TSheepBehaviour.IDLE
-      && sheepX.sex !== sheep.sex
-      && !sheep.isBranded 
-      && !sheepX.isBranded
-      && haveSheepCollided (distance) (sheep) (sheepX)
-    ) 
-  )
+: ISheep[] =>
+  produce (sheepArray, draft => {
+    draft.map ( draftSheep => 
+      draftSheep.point = movePointInDirectionAndLimit (box) (MOVEMENT_QUANTITY, getRandomAngle()) (draftSheep.point)
+    )
+  })
 
+  
+//--------------------------------------------------------------------------------
+// Sheep basic behaviour
+//--------------------------------------------------------------------------------
 
 export const getSheepNextBasicBehaviour =
 (sheep: ISheep)
@@ -150,14 +184,31 @@ export const updateSheepArrayBasicBehaviour =
     draft.map ( draftSheep => draftSheep.behaviour = getSheepNextBasicBehaviour (draftSheep) )
   })
 
-const getRandomSex: () => TSheepSex =
-  flow (
-    Math.random,
-    Math.round,
-    value => value === 0
-      ? TSheepSex.MALE
-      : TSheepSex.FEMALE
+//--------------------------------------------------------------------------------
+// Sheep mating behaviour
+//--------------------------------------------------------------------------------
+
+// This searches through the array looking for a sheep that meets the following criteria
+// 1/ Of the opposite sex
+// 2/ Within the supplied distance
+// 3/ In the IDLE state
+// Note that this does not "pair up" the sheep, so multiple male sheep could be mating with the same female, and vice versa
+export const canSheepMate =
+(distance: number) =>
+(sheep: ISheep) =>
+(sheepArray: ISheep[])
+: boolean =>
+  !isUndefined (
+    sheepArray.find ( sheepX =>
+      sheepX.behaviour === TSheepBehaviour.IDLE 
+      && sheep.behaviour === TSheepBehaviour.IDLE
+      && sheepX.sex !== sheep.sex
+      && !sheep.isBranded 
+      && !sheepX.isBranded
+      && haveSheepCollided (distance) (sheep) (sheepX)
+    ) 
   )
+
 
 export const updateSheepArrayBirthingBehaviour =
 (sheepArray: ISheep[])
@@ -171,6 +222,10 @@ export const updateSheepArrayBirthingBehaviour =
   return sheepArray.concat (newSheepArray) 
 }
 
+//--------------------------------------------------------------------------------
+// Sheep combined behaviour
+//--------------------------------------------------------------------------------
+
 export const updateSheepArrayBasicAndBirthingBehaviour: 
 (sheepArray: ISheep[]) => 
 ISheep[] =
@@ -178,3 +233,4 @@ ISheep[] =
     updateSheepArrayBasicBehaviour,
     updateSheepArrayBirthingBehaviour,
   )
+
