@@ -1,36 +1,59 @@
 import * as React from 'react';
-import { useEffect } from 'react';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-const displaySheep = (canvasRef: React.RefObject<HTMLCanvasElement>) => {
-  const canvas = canvasRef.current;
-  if (canvas !== null) {
-    const context = canvas.getContext('2d');
-    if (context !== null) {
-      const img = new Image();        
-      img.src = '../media/sheep.gif';        
-      img.onload = () => 
-        context.drawImage(img, 50, 50)
-    }
-  }
+import { ISheep, TSheepBehaviour, TSheepSex } from "./sheepTypes"
+import { createSheep, getRandomPoint } from "./sheepFunctions"
+
+//const FIELD_BOX: IBox = {topLeft: {x: 0, y: 0}, bottomRight: {x: 100, y: 100}}
+
+
+const getSheepImageName =
+(sheep: ISheep)
+: string =>
+  sheep.isBranded
+    ? 'branded'
+    : sheep.sex === TSheepSex.MALE
+      ? 'male'
+      : 'female'
+
+const getSheepImageSize =
+(sheep: ISheep)
+: number =>
+  sheep.behaviour === TSheepBehaviour.NEWBORN
+    ? 10
+    : sheep.behaviour === TSheepBehaviour.LAMB
+      ? 20
+      : 40
+
+ 
+
+const displaySheep = 
+(canvas: CanvasRenderingContext2D) => 
+(sheep: ISheep) => {
+  const img = new Image();        
+  const imgSize = getSheepImageSize (sheep)
+  img.src = '../media/' + getSheepImageName (sheep) + '.png'
+  img.onload = () => 
+    canvas.drawImage(img, sheep.point.x, sheep.point.y, imgSize, imgSize)
 }
 
 export const Root = (): JSX.Element => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
+
+    const [sheepArray, setSheepArray] = useState <ISheep[]> ([])
      
       useEffect(() => {
           const canvas = canvasRef.current;
           if (canvas !== null) {
           const context = canvas.getContext('2d');
           if (context !== null) {
-            context.fillStyle = 'green';
-            context.fillRect(20, 10, 300, 300);
+            sheepArray.map (displaySheep (context))
           }
         }
-      })
+      }, [sheepArray])
        
        return <div className="total"
-         style={{ width: '400px', height: '400px', display: "flex", flexDirection: "row"}}
+         style={{ width: '700', height: '700', display: "flex", flexDirection: "row"}}
        > 
         <div className="buttonsArea"
              style={{ width: '200px', height: '200px'}}
@@ -52,15 +75,16 @@ export const Root = (): JSX.Element => {
 
             <button 
               className="btn btn-lg btn-primary btn-block"
-              onClick   = {() => displaySheep (canvasRef)} 
+              onClick   = {() => setSheepArray (
+                sheepArray.concat (createSheep (0, 'Flossy', TSheepSex.FEMALE, getRandomPoint()))
+              )}
             >
               {'Create Sheep'}
             </button>          
-            {/* <img src="../media/sheep.gif" height="50%" width="50%" alt="Sheep.gif" />             */}
           </form>
         </div>
         <div className="field">
-          <canvas ref={canvasRef}/>
+          <canvas className="canvas" ref={canvasRef}/>
         </div>
       </div>
     }

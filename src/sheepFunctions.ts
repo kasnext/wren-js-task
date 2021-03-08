@@ -27,6 +27,17 @@ const getRandomAngle: () => number =
     value => value * 2 * Math.PI
   )
 
+export const getRandomValue: () => number =
+  flow (
+    Math.random,
+    value => 100 * value,
+    Math.round
+  )
+
+export const getRandomPoint = (): IPoint => {
+  return {x: getRandomValue (), y: getRandomValue()}
+}
+
 
 //--------------------------------------------------------------------------------
 // Sheep creation

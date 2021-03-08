@@ -48,8 +48,8 @@ test.only ('testFemaleSheepBirthingBehaviour', () => testFemaleSheepBirthingBeha
 
 //--------------------------------------------------------
 
-const FIELD_BOX: IBox = {topLeft: {x: 0, y: 0}, bottomRight: {x: 100, y: 100}}
-const FIELD_TOPRIGHT: IPoint = {x: 100, y: 0}
+const TEST_FIELD_BOX: IBox = {topLeft: {x: 0, y: 0}, bottomRight: {x: 100, y: 100}}
+const TEST_FIELD_TOPRIGHT: IPoint = {x: 100, y: 0}
 
 // These are useful angles in radians
 const DIRECTION_RIGHT     = 0
@@ -58,12 +58,12 @@ const DIRECTION_DOWNRIGHT = 7/8*(2*Math.PI)
 const DIRECTION_UPLEFT    = 3/8*(2*Math.PI)
 
 
-const createFlossy  = (): ISheep => createSheep (0, 'Flossy', TSheepSex.FEMALE, FIELD_BOX.topLeft)
-const createFred    = (): ISheep => createSheep (0, 'Fred', TSheepSex.MALE, FIELD_BOX.bottomRight)
+const createFlossy  = (): ISheep => createSheep (0, 'Flossy', TSheepSex.FEMALE, TEST_FIELD_BOX.topLeft)
+const createFred    = (): ISheep => createSheep (0, 'Fred', TSheepSex.MALE, TEST_FIELD_BOX.bottomRight)
 
 const createJoe = (): ISheep => 
   pipe (
-    createSheep (0, 'Joe', TSheepSex.MALE, FIELD_TOPRIGHT),
+    createSheep (0, 'Joe', TSheepSex.MALE, TEST_FIELD_TOPRIGHT),
     sheep => produce (sheep, draft => {draft.isBranded = true})  
   )
 
@@ -104,7 +104,7 @@ const testMoveFlossyOneSquare: () => void =
 const testMoveFlossyRight: () => void =
   flow (
     createFlossy,
-    moveSheepInDirection (FIELD_BOX) (1, DIRECTION_RIGHT),
+    moveSheepInDirection (TEST_FIELD_BOX) (1, DIRECTION_RIGHT),
     sheep => {
       expect (sheep.point.x).toBe (1)
       expect (sheep.point.y).toBe (0)
@@ -114,7 +114,7 @@ const testMoveFlossyRight: () => void =
 const testMoveFlossyDown: () => void =
   flow (
     createFlossy,
-    moveSheepInDirection (FIELD_BOX) (1, DIRECTION_DOWN),
+    moveSheepInDirection (TEST_FIELD_BOX) (1, DIRECTION_DOWN),
     sheep => {
       expect (sheep.point.x).toBe (0)
       expect (sheep.point.y).toBe (1)
@@ -125,7 +125,7 @@ const testMoveFlossyDown: () => void =
 const testMoveFlossyDownRight: () => void =
   flow (
     createFlossy,
-    moveSheepInDirection (FIELD_BOX) (1, DIRECTION_DOWNRIGHT ),
+    moveSheepInDirection (TEST_FIELD_BOX) (1, DIRECTION_DOWNRIGHT ),
     sheep => {
       expect (sheep.point.x).toBe (1)
       expect (sheep.point.y).toBe (1)
@@ -136,7 +136,7 @@ const testMoveFlossyDownRight: () => void =
 const testMoveFlossyDownRight100: () => void =
   flow (
     createFlossy,
-    moveSheepInDirection (FIELD_BOX) (100, DIRECTION_DOWNRIGHT ),
+    moveSheepInDirection (TEST_FIELD_BOX) (100, DIRECTION_DOWNRIGHT ),
     sheep => {
       expect (sheep.point.x).toBe (Math.round(100*(1/Math.SQRT2)))
       expect (sheep.point.y).toBe (Math.round(100*(1/Math.SQRT2)))
@@ -146,10 +146,10 @@ const testMoveFlossyDownRight100: () => void =
 const testMoveFlossyUpLeft100: () => void =
   flow (
     createFlossy,
-    moveSheepInDirection (FIELD_BOX) (100, DIRECTION_UPLEFT),
+    moveSheepInDirection (TEST_FIELD_BOX) (100, DIRECTION_UPLEFT),
     sheep => {
-      expect (sheep.point.x).toBe (FIELD_BOX.topLeft.x)
-      expect (sheep.point.y).toBe (FIELD_BOX.topLeft.y)
+      expect (sheep.point.x).toBe (TEST_FIELD_BOX.topLeft.x)
+      expect (sheep.point.y).toBe (TEST_FIELD_BOX.topLeft.y)
     }
   )
 
@@ -157,30 +157,30 @@ const testMoveFlossyUpLeft100: () => void =
   const testMoveFredDownRight100: () => void =
   flow (
     createFred,
-    moveSheepInDirection (FIELD_BOX) (100, DIRECTION_DOWNRIGHT),
+    moveSheepInDirection (TEST_FIELD_BOX) (100, DIRECTION_DOWNRIGHT),
     sheep => {
-      expect (sheep.point.x).toBe (FIELD_BOX.bottomRight.x)
-      expect (sheep.point.y).toBe (FIELD_BOX.bottomRight.y)
+      expect (sheep.point.x).toBe (TEST_FIELD_BOX.bottomRight.x)
+      expect (sheep.point.y).toBe (TEST_FIELD_BOX.bottomRight.y)
     }
   )
   
   const testMoveJoeRight100: () => void =
   flow (
     createJoe,
-    moveSheepInDirection (FIELD_BOX) (100, DIRECTION_RIGHT),
+    moveSheepInDirection (TEST_FIELD_BOX) (100, DIRECTION_RIGHT),
     sheep => {
-      expect (sheep.point.x).toBe (FIELD_BOX.bottomRight.x)
-      expect (sheep.point.y).toBe (FIELD_BOX.topLeft.y)
+      expect (sheep.point.x).toBe (TEST_FIELD_BOX.bottomRight.x)
+      expect (sheep.point.y).toBe (TEST_FIELD_BOX.topLeft.y)
     }
   )
   
   const testMoveJoeDown100: () => void =
   flow (
     createJoe,
-    moveSheepInDirection (FIELD_BOX) (100, DIRECTION_DOWN),
+    moveSheepInDirection (TEST_FIELD_BOX) (100, DIRECTION_DOWN),
     sheep => {
-      expect (sheep.point.x).toBe (FIELD_BOX.bottomRight.x)
-      expect (sheep.point.y).toBe (FIELD_BOX.bottomRight.y)
+      expect (sheep.point.x).toBe (TEST_FIELD_BOX.bottomRight.x)
+      expect (sheep.point.y).toBe (TEST_FIELD_BOX.bottomRight.y)
     }
   )
   
@@ -348,6 +348,6 @@ const testUpdateMaleSheepBasicBehaviour = (): void =>
     () => undefined
   )
 
-  
+
 
   

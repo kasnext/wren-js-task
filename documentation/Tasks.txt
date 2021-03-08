@@ -1,9 +1,8 @@
 Todo
 ----
 
+x/ 
 
-x/ Create more sheep images
-  - Pink, blue, green for female, male and branded
 
 x/ Resize the sheep image and draw in the centre of the field
 
@@ -13,6 +12,9 @@ x/ Remove the sheep id?
 
 Done
 ----
+26/ Create more sheep images
+  - Pink, blue, green for female, male and branded
+
 25/ Create function to move all the sheep randomly
 
 24/ Create a newborn sheep after female is pregnant and test
