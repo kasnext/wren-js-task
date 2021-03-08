@@ -6,7 +6,7 @@ import { pipe, flow } from "fp-ts/lib/function"
 import { isUndefined } from "util";
 
 
-const MOVEMENT_QUANTITY = 10
+const MOVEMENT_QUANTITY = 5
 
 //--------------------------------------------------------------------------------
 // Random functions
@@ -21,21 +21,24 @@ const getRandomSex: () => TSheepSex =
       : TSheepSex.FEMALE
   )
 
-const getRandomAngle: () => number =
-  flow (
-    Math.random,
-    value => value * 2 * Math.PI
+// This returns an angle that is different from the prev angle by an amount up to 90 degrees
+// This prevents sudden changes in direction
+const getRandomAngle = (prevAngle: number): number =>
+  pipe (
+    Math.random (),
+    value => (value - 0.5) * Math.PI/2,
+    value => prevAngle + value
   )
 
-export const getRandomValue: () => number =
-  flow (
-    Math.random,
-    value => 100 * value,
+const getRandomValue = (size: number): number =>
+  pipe (
+    Math.random (),
+    value => size * value,
     Math.round
   )
 
-export const getRandomPoint = (): IPoint => {
-  return {x: getRandomValue (), y: getRandomValue()}
+export const getRandomPoint = (size: number): IPoint => {
+  return {x: getRandomValue (size), y: getRandomValue(size)}
 }
 
 
@@ -53,6 +56,7 @@ export const createSheepWithBehaviour =
     point: point,
     name: name,
     sex: sex,
+    angle: 0,
     behaviour: behaviour,
     isBranded: false,
   }
@@ -151,11 +155,19 @@ export const updateSheepArrayPosition =
 (sheepArray: ISheep[])
 : ISheep[] =>
   produce (sheepArray, draft => {
-    draft.map ( draftSheep => 
-      draftSheep.point = movePointInDirectionAndLimit (box) (MOVEMENT_QUANTITY, getRandomAngle()) (draftSheep.point)
-    )
+    draft.map ( draftSheep => {
+      draftSheep.angle = getRandomAngle(draftSheep.angle)
+      draftSheep.point = movePointInDirectionAndLimit (box) (MOVEMENT_QUANTITY, draftSheep.angle) (draftSheep.point)
+    })
   })
 
+// export const updateSheepArrayPositionOld =
+// (box: IBox) =>
+// (sheepArray: ISheep[])
+// : ISheep[] =>
+//   produce (sheepArray, draft => {
+//     draft.map (draftSheep => draftSheep.point.x = draftSheep.point.x + 10 + box.topLeft.x)
+//   })
   
 //--------------------------------------------------------------------------------
 // Sheep basic behaviour

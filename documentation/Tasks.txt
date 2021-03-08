@@ -4,14 +4,15 @@ Todo
 x/ 
 
 
-x/ Resize the sheep image and draw in the centre of the field
-
-x/ The field is refreshing too often
 
 x/ Remove the sheep id?
 
 Done
 ----
+28 / Move the sheep randomly
+
+27 / Add an onclick event handler to the sheep, to brand it
+
 26/ Create more sheep images
   - Pink, blue, green for female, male and branded
 

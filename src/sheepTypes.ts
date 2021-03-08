@@ -28,6 +28,7 @@ export interface ISheep {
   readonly name: string // The answer is generated
   readonly sex: TSheepSex
   readonly point: IPoint,
+  readonly angle: number,
   readonly behaviour: TSheepBehaviour,
   readonly isBranded: boolean,
 }
