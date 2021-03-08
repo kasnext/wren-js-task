@@ -8,15 +8,26 @@ import * as A from 'fp-ts/lib/Array';
 import * as O from 'fp-ts/lib/Option';
 import produce from 'immer';
 
-const FIELD_SIZE: number = 300
+const FIELD_BOX_SIZE: number = 300
 const SHEEP_SIZE: number = 30
+const SHEEP_BOX_SIZE: number = FIELD_BOX_SIZE - SHEEP_SIZE
 
 // This represents the coordinates for the field
-const FIELD_BOX: IBox = {topLeft: {x: 0, y: 0}, bottomRight: {x: FIELD_SIZE, y: FIELD_SIZE}}
+const FIELD_BOX: IBox = {topLeft: {x: 0, y: 0}, bottomRight: {x: FIELD_BOX_SIZE, y: FIELD_BOX_SIZE}}
 // The represents the area in which the sheep can move
 // It is smaller than the field because the sheep has an area
-const SHEEP_BOX: IBox = {topLeft: {x: 0, y: 0}, bottomRight: {x: FIELD_SIZE - SHEEP_SIZE, y: FIELD_SIZE - SHEEP_SIZE}}
+const SHEEP_BOX: IBox = {topLeft: {x: 0, y: 0}, bottomRight: {x: FIELD_BOX_SIZE - SHEEP_SIZE, y: FIELD_BOX_SIZE - SHEEP_SIZE}}
 
+const sexOptions = [
+  {
+    label: "Male",
+    type: TSheepSex.MALE,
+  },
+  {
+    label: "Female",
+    type: TSheepSex.FEMALE,
+  },
+]
 
 const getSheepImageName =
 (sheep: ISheep)
@@ -50,10 +61,15 @@ const displaySheep =
   }
 }
 
+
 export const Root = (): JSX.Element => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
+    const inputNameRef = useRef<HTMLInputElement>(null)
 
     const [sheepArray, setSheepArray] = useState <ISheep[]> ([])
+
+    const [inputSex, setInputSex] = useState <TSheepSex>(TSheepSex.MALE)
+    const [inputName, setInputName] = useState <string>('')
 
     const findSheepAndBrand = (event: MouseEvent, canvas: HTMLCanvasElement): void => {
       const x = event.pageX - canvas.offsetLeft - canvas.clientLeft
@@ -110,37 +126,69 @@ export const Root = (): JSX.Element => {
           }, 50)
           return () => clearInterval (interval)
         }, [sheepArray])
-    
+
+        const handleSexChange = (event: React.ChangeEvent<HTMLSelectElement>): void =>
+          setInputSex(
+            pipe (
+              sexOptions,
+              A.findFirst (option => option.label === event.target.value),
+              O.fold (
+                () => TSheepSex.MALE,
+                option => option.type
+              )
+            )
+          )
+        
+        const doCreateSheep = (): ISheep => {
+          const sheep: ISheep = createSheep (sheepArray.length, inputName, inputSex, getRandomPoint (SHEEP_BOX_SIZE))
+          setInputName ('')
+          inputNameRef
+            ? inputNameRef.current
+              ? inputNameRef.current.focus()
+            : undefined
+          : undefined
+          return sheep
+        }          
+
        return <div className="total"
          style={{ width: '700', height: '700', display: "flex", flexDirection: "row"}}
        > 
         <div className="buttonsArea"
              style={{ width: '200px', height: '200px'}}
         >
-          <form className="create-sheep">
+          <div className="create-sheep">
             <label id="sheepNameLabel" htmlFor="sheepName" className="sr-only">Name:</label>
             <input 
               id="sheepName"
               type='text' 
-              className = 'form-control'
+              ref={inputNameRef}
+              className='form-control'
               name='sheepNameText'
               placeholder="Name" required autoFocus
+              value={inputName}
+              onChange={event => setInputName(event.target.value)}
             />
             <label id="sheepSexLabel" htmlFor="sheepSex" className="sr-only">Sex</label>
-            <select className="form-control">
-              <option>Male</option>
-              <option>Female</option>
+            <select className="form-control" onChange={handleSexChange}>
+              {sexOptions.map(option => 
+                <option value={option.label}>{option.label}</option>
+              )}
             </select>
 
-            <button 
+            <button  
               className="btn btn-lg btn-primary btn-block"
-              onClick   = {() => setSheepArray (
-                sheepArray.concat (createSheep (sheepArray.length, 'Flossy', TSheepSex.FEMALE, getRandomPoint (FIELD_SIZE)))
-              )}
+              onClick   = {() => 
+                inputName !== ''
+                  ? setSheepArray (
+                      sheepArray.concat (doCreateSheep ())
+                    )
+                  : undefined
+                }
+                disabled={inputName===''} 
             >
               {'Create Sheep'}
             </button>          
-          </form>
+          </div>
         </div>
         <div className="field">
           <canvas className="canvas" ref={canvasRef} 
