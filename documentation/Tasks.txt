@@ -6,6 +6,10 @@ x/ Reduce the amount of animation flickering
 
 Done
 ----
+34/ Add tests - Females should only give birth 50% of the time after mating
+
+33/ Females should only give birth 50% of the time after mating
+
 32/ Add a button to reset the array of sheep
 
 31/ Add a button to pause the animation

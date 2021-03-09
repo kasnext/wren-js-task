@@ -1,16 +1,16 @@
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 
-import { IBox, ISheep, TSheepBehaviour, TSheepSex } from "./sheepTypes"
-import { createSheep, getRandomPoint, updateSheepArrayAllBehaviour, updateSheepArrayPosition } from "./sheepFunctions"
+import { IBox, IPoint, ISheep, TSheepBehaviour, TSheepSex } from "./sheepTypes"
+import { createSheep, findSheepAndBrand, getRandomTrueOrFalse, updateSheepArrayAllBehaviour, updateSheepArrayPosition } from "./sheepFunctions"
 import { pipe } from 'fp-ts/lib/function';
 import * as A from 'fp-ts/lib/Array';
 import * as O from 'fp-ts/lib/Option';
-import produce from 'immer';
 
 const FIELD_BOX_SIZE: number = 300
 const SHEEP_SIZE: number = 30
 const SHEEP_BOX_SIZE: number = FIELD_BOX_SIZE - SHEEP_SIZE
+const SHEEP_BOX_CENTRE: IPoint = {x: SHEEP_BOX_SIZE/2, y: SHEEP_BOX_SIZE/2}
 
 // This represents the coordinates for the field
 const FIELD_BOX: IBox = {topLeft: {x: 0, y: 0}, bottomRight: {x: FIELD_BOX_SIZE, y: FIELD_BOX_SIZE}}
@@ -73,35 +73,6 @@ export const Root = (): JSX.Element => {
     const [secondsState, setSecondsState] = useState(0)
     const [pauseState, setPauseState] = useState(false)
 
-    const findSheepAndBrand = (event: MouseEvent, canvas: HTMLCanvasElement): void => {
-      const x = event.pageX - canvas.offsetLeft - canvas.clientLeft
-      const y = event.pageY - canvas.offsetTop - canvas.clientTop
-
-      pipe (
-        sheepArrayState,
-        A.findFirst (sheep => 
-          Math.abs (sheep.point.x + SHEEP_SIZE/2 - x) < SHEEP_SIZE/2 && 
-          Math.abs (sheep.point.y + SHEEP_SIZE/2 - y) < SHEEP_SIZE/2
-        ),
-        O.fold (
-          () => undefined,
-          brandSheep
-        )
-      )
-    }
-
-    const brandSheep = (sheep: ISheep): void =>
-      pipe ( 
-        produce (sheepArrayState, draft => {
-          pipe (
-            draft.find (sheepX => sheepX.id === sheep.id),
-            sheepX => sheepX 
-              ? sheepX.isBranded = true
-              : undefined
-          )
-        }),
-        setSheepArrayState 
-      )
 
 
       useEffect(() => {
@@ -111,7 +82,10 @@ export const Root = (): JSX.Element => {
           if (context !== null) {
             context.clearRect (FIELD_BOX.topLeft.x, FIELD_BOX.topLeft.y, FIELD_BOX.bottomRight.x, FIELD_BOX.bottomRight.y) 
             sheepArrayState.map (displaySheep (context))
-            canvas.onclick = (event: MouseEvent) => findSheepAndBrand (event, canvas)
+            canvas.onclick = (event: MouseEvent) => pipe (
+              findSheepAndBrand (SHEEP_SIZE) (sheepArrayState) (event, canvas),
+              setSheepArrayState
+            )          
           }
         }
       }, [sheepArrayState, pauseState])
@@ -123,8 +97,8 @@ export const Root = (): JSX.Element => {
           setSecondsState(secondsState + 1)
           !pauseState
           ? pipe (
-            secondsState % 20 === 0 
-              ? updateSheepArrayAllBehaviour (SHEEP_SIZE * 2) (sheepArrayState)
+            secondsState % 10 === 0 
+              ? updateSheepArrayAllBehaviour (getRandomTrueOrFalse) (SHEEP_SIZE * 2) (sheepArrayState)
               : updateSheepArrayPosition (SHEEP_BOX) (sheepArrayState),
             setSheepArrayState
           )
@@ -147,7 +121,7 @@ export const Root = (): JSX.Element => {
           )
         
         const doCreateSheep = (): ISheep => {
-          const sheep: ISheep = createSheep (sheepArrayState.length, inputNameState, inputSexState, getRandomPoint (SHEEP_BOX_SIZE))
+          const sheep: ISheep = createSheep (sheepArrayState.length, inputNameState, inputSexState, SHEEP_BOX_CENTRE)
           setInputNameState ('')
           inputNameRef
             ? inputNameRef.current

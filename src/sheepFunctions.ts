@@ -12,14 +12,30 @@ const MOVEMENT_QUANTITY = 5
 // Random functions
 //--------------------------------------------------------------------------------
 
-const getRandomSex: () => TSheepSex =
+
+export type TGetTrueOrFalse = () => boolean
+
+
+export const getRandomTrueOrFalse: TGetTrueOrFalse = 
   flow (
     Math.random,
     Math.round,
     value => value === 0
-      ? TSheepSex.MALE
-      : TSheepSex.FEMALE
+      ? true
+      : false
   )
+
+const getRandomSex = (): TSheepSex =>
+  getRandomTrueOrFalse ()
+    ? TSheepSex.MALE
+    : TSheepSex.FEMALE
+
+const getNextFemaleBehviourAfterMating = (getTrueOrFalse: TGetTrueOrFalse): TSheepBehaviour =>
+  getTrueOrFalse ()
+    ? TSheepBehaviour.BIRTHING
+    : TSheepBehaviour.RECOVERING
+  
+
 
 // This returns an angle that is different from the prev angle by an amount up to 90 degrees
 // This prevents sudden changes in direction
@@ -166,37 +182,38 @@ export const updateSheepArrayPosition =
 //--------------------------------------------------------------------------------
 
 export const getSheepNextBasicBehaviour =
+(getTrueOrFalse: TGetTrueOrFalse) =>
 (sheep: ISheep)
 : TSheepBehaviour =>
   sheep.behaviour === TSheepBehaviour.MATING 
   ? sheep.sex === TSheepSex.MALE 
     ? TSheepBehaviour.RECOVERING
-    : TSheepBehaviour.PREGNANT
-  : sheep.behaviour === TSheepBehaviour.PREGNANT
-    ? TSheepBehaviour.BIRTHING
-    : sheep.behaviour === TSheepBehaviour.BIRTHING
-      ? TSheepBehaviour.RECOVERING
-      : sheep.behaviour === TSheepBehaviour.RECOVERING
-        ? TSheepBehaviour.IDLE
-        : sheep.behaviour === TSheepBehaviour.NEWBORN
-          ? TSheepBehaviour.LAMB
-          : sheep.behaviour === TSheepBehaviour.LAMB
-            ? TSheepBehaviour.IDLE
-            : sheep.behaviour
+    : getNextFemaleBehviourAfterMating (getTrueOrFalse)
+  : sheep.behaviour === TSheepBehaviour.BIRTHING
+    ? TSheepBehaviour.RECOVERING
+    : sheep.behaviour === TSheepBehaviour.RECOVERING
+      ? TSheepBehaviour.IDLE
+      : sheep.behaviour === TSheepBehaviour.NEWBORN
+        ? TSheepBehaviour.LAMB
+        : sheep.behaviour === TSheepBehaviour.LAMB
+          ? TSheepBehaviour.IDLE
+          : sheep.behaviour
 
   
 export const updateSheepBasicBehaviour =
+(getTrueOrFalse: TGetTrueOrFalse) =>
 (sheep: ISheep)
 : ISheep =>
   produce (sheep, draft => {
-    draft.behaviour = getSheepNextBasicBehaviour (sheep)
+    draft.behaviour = getSheepNextBasicBehaviour (getTrueOrFalse) (sheep)
   })
 
 export const updateSheepArrayBasicBehaviour =
+(getTrueOrFalse: TGetTrueOrFalse) =>
 (sheepArray: ISheep[])
 : ISheep[] =>
   produce (sheepArray, draft => {
-    draft.map ( draftSheep => draftSheep.behaviour = getSheepNextBasicBehaviour (draftSheep) )
+    draft.map ( draftSheep => draftSheep.behaviour = getSheepNextBasicBehaviour (getTrueOrFalse) (draftSheep) )
   })
 
 //--------------------------------------------------------------------------------
@@ -248,7 +265,7 @@ export const updateSheepArrayBirthingBehaviour =
   const newSheepArray: ISheep[] = [] 
   sheepArray.map (sheep =>
     sheep.behaviour === TSheepBehaviour.BIRTHING
-      ? newSheepArray.push ( createNewborn (sheepArray.length + newSheepArray.length, sheep.name + '_' + (sheepArray.length + newSheepArray.length), getRandomSex(), sheep.point) )
+      ? newSheepArray.push ( createNewborn (sheepArray.length + newSheepArray.length, 'nameless_' + (sheepArray.length + newSheepArray.length), getRandomSex(), sheep.point) )
       : undefined
   )
   return sheepArray.concat (newSheepArray) 
@@ -258,21 +275,59 @@ export const updateSheepArrayBirthingBehaviour =
 // Sheep combined behaviour
 //--------------------------------------------------------------------------------
 
-export const updateSheepArrayBasicAndBirthingBehaviour: 
-(sheepArray: ISheep[]) => 
-ISheep[] =
+export const updateSheepArrayBasicAndBirthingBehaviour =
+(getTrueOrFalse: TGetTrueOrFalse)
+:(sheepArray: ISheep[]) => 
+ISheep[] =>
   flow (
-    updateSheepArrayBasicBehaviour,
+    updateSheepArrayBasicBehaviour (getTrueOrFalse),
     updateSheepArrayBirthingBehaviour,
   )
 
 export const updateSheepArrayAllBehaviour = 
+(getTrueOrFalse: TGetTrueOrFalse) =>
 (distance: number) =>
 (sheepArray: ISheep[])
 : ISheep[] =>
   pipe (
-    updateSheepArrayBasicBehaviour (sheepArray),
+    updateSheepArrayBasicBehaviour (getTrueOrFalse) (sheepArray),
     updateSheepArrayMatingBehaviour (distance),
     updateSheepArrayBirthingBehaviour,
   )
 
+
+  export const findSheepAndBrand = 
+  (sheepSize: number) =>
+  (sheepArray: ISheep[]) =>
+  (event: MouseEvent, canvas: HTMLCanvasElement)
+  : ISheep[] => {
+    const x = event.pageX - canvas.offsetLeft - canvas.clientLeft
+    const y = event.pageY - canvas.offsetTop - canvas.clientTop
+  
+    return pipe (
+      sheepArray,
+      A.findFirst (sheep => 
+        Math.abs (sheep.point.x + sheepSize/2 - x) < sheepSize/2 && 
+        Math.abs (sheep.point.y + sheepSize/2 - y) < sheepSize/2
+      ),
+      O.fold (
+        () => sheepArray,
+        brandSheepArray (sheepArray)
+      )
+    )
+  }
+  
+  export const brandSheepArray = 
+  (sheepArray: ISheep[]) =>
+  (sheep: ISheep)
+  : ISheep[] =>
+    produce (sheepArray, draft => {
+      pipe (
+        draft.find (sheepX => sheepX.id === sheep.id),
+        sheepX => sheepX 
+          ? sheepX.isBranded = true
+          : undefined
+      )
+    })
+    
+  

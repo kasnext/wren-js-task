@@ -11,7 +11,6 @@ export interface IBox {
 export enum TSheepBehaviour {
   IDLE, 
   MATING, 
-  PREGNANT, 
   BIRTHING, 
   RECOVERING, 
   NEWBORN, 

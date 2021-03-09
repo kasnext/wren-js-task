@@ -3,7 +3,7 @@ import { ISheep, IPoint, TSheepBehaviour, TSheepSex, IBox } from "./sheepTypes"
 // 3rd party imports
 import {produce} from 'immer';
 import { flow, pipe } from "fp-ts/lib/function"
-import { createSheep, brandSheep, canSheepMate, haveSheepCollided, moveSheepInDirection, updateSheepArrayBasicBehaviour, updateSheepBasicBehaviour, updateSheepArrayBasicAndBirthingBehaviour } from "./sheepFunctions";
+import { createSheep, brandSheep, canSheepMate, haveSheepCollided, moveSheepInDirection, updateSheepArrayBasicBehaviour, updateSheepBasicBehaviour, updateSheepArrayBasicAndBirthingBehaviour, TGetTrueOrFalse } from "./sheepFunctions";
 
 
 // Sanity test
@@ -26,8 +26,10 @@ test.only ('testMoveJoeDown100', () => testMoveJoeDown100 () )
 
 
 // One sheep behaviour
-test.only ('testUpdateFemaleSheepBasicBehaviour', () => testUpdateFemaleSheepBasicBehaviour () )
-test.only ('testUpdateMaleSheepBasicBehaviour', () => testUpdateMaleSheepBasicBehaviour () )
+test.only ('testUpdateFemaleSheepBasicBehaviourThatReproduces', () => testUpdateFemaleSheepBasicBehaviourThatReproduces () )
+test.only ('testUpdateFemaleSheepBasicBehaviourThatDoesNotReproduce', () => testUpdateFemaleSheepBasicBehaviourThatDoesNotReproduce () )
+test.only ('testUpdateMaleSheepBasicBehaviour1', () => testUpdateMaleSheepBasicBehaviour (getTrue) )
+test.only ('testUpdateMaleSheepBasicBehaviour2', () => testUpdateMaleSheepBasicBehaviour (getFalse) )
 
 
 // Array of sheep
@@ -267,38 +269,58 @@ const compareSheepBehaviour =
     return sheep
   }
 
+// We need the getTrue and getFalse to test the randomness of the reproduction
+const getTrue: TGetTrueOrFalse = 
+  () => true 
 
-const testUpdateFemaleSheepBasicBehaviour = (): void => 
+const getFalse: TGetTrueOrFalse = 
+  () => false
+
+
+const testUpdateFemaleSheepBasicBehaviourThatReproduces = (): void => 
   pipe (
     createFlossy (),
     compareSheepBehaviour (TSheepBehaviour.IDLE),
-    updateSheepBasicBehaviour,
+    updateSheepBasicBehaviour (getTrue),
     compareSheepBehaviour (TSheepBehaviour.IDLE),
     sheep => produce (sheep, draft => {draft.behaviour = TSheepBehaviour.MATING} ),
     compareSheepBehaviour (TSheepBehaviour.MATING),
-    updateSheepBasicBehaviour,
-    compareSheepBehaviour (TSheepBehaviour.PREGNANT),
-    updateSheepBasicBehaviour,
+    updateSheepBasicBehaviour (getTrue),
     compareSheepBehaviour (TSheepBehaviour.BIRTHING),
-    updateSheepBasicBehaviour,
+    updateSheepBasicBehaviour (getTrue),
     compareSheepBehaviour (TSheepBehaviour.RECOVERING),
-    updateSheepBasicBehaviour,
+    updateSheepBasicBehaviour (getTrue),
+    compareSheepBehaviour (TSheepBehaviour.IDLE),
+    () => undefined
+  )
+
+const testUpdateFemaleSheepBasicBehaviourThatDoesNotReproduce = (): void => 
+  pipe (
+    createFlossy (),
+    compareSheepBehaviour (TSheepBehaviour.IDLE),
+    updateSheepBasicBehaviour (getFalse),
+    compareSheepBehaviour (TSheepBehaviour.IDLE),
+    sheep => produce (sheep, draft => {draft.behaviour = TSheepBehaviour.MATING} ),
+    compareSheepBehaviour (TSheepBehaviour.MATING),
+    updateSheepBasicBehaviour (getFalse),
+    compareSheepBehaviour (TSheepBehaviour.RECOVERING),
+    updateSheepBasicBehaviour (getFalse),
     compareSheepBehaviour (TSheepBehaviour.IDLE),
     () => undefined
   )
 
   
-const testUpdateMaleSheepBasicBehaviour = (): void => 
+const testUpdateMaleSheepBasicBehaviour = (getTrueOrFalse: TGetTrueOrFalse): void => 
   pipe (
     createFred (),
     compareSheepBehaviour (TSheepBehaviour.IDLE),
-    updateSheepBasicBehaviour,
+    updateSheepBasicBehaviour (getTrueOrFalse),
     compareSheepBehaviour (TSheepBehaviour.IDLE),
     sheep => produce (sheep, draft => {draft.behaviour = TSheepBehaviour.MATING} ),
     compareSheepBehaviour (TSheepBehaviour.MATING),
-    updateSheepBasicBehaviour,
+    updateSheepBasicBehaviour (getTrueOrFalse),
     compareSheepBehaviour (TSheepBehaviour.RECOVERING),
-    updateSheepBasicBehaviour,
+    updateSheepBasicBehaviour (getTrueOrFalse),
     compareSheepBehaviour (TSheepBehaviour.IDLE),
     () => undefined
   )
@@ -311,11 +333,9 @@ const testUpdateMaleSheepBasicBehaviour = (): void =>
     pipeableArrayLengthCheck (2),
     sheepArray => produce (sheepArray, draft => {draft[0].behaviour = TSheepBehaviour.MATING} ),
     compareSheepInArrayBehaviourByIndex (TSheepBehaviour.MATING) (0),
-    updateSheepArrayBasicBehaviour,
-    compareSheepInArrayBehaviourByIndex (TSheepBehaviour.PREGNANT) (0),
-    updateSheepArrayBasicBehaviour,
+    updateSheepArrayBasicBehaviour (getTrue),
     compareSheepInArrayBehaviourByIndex (TSheepBehaviour.BIRTHING) (0),
-    updateSheepArrayBasicBehaviour,
+    updateSheepArrayBasicBehaviour (getTrue),
     compareSheepInArrayBehaviourByIndex (TSheepBehaviour.RECOVERING) (0),
     pipeableArrayLengthCheck (2),
     () => undefined
@@ -331,17 +351,15 @@ const testUpdateMaleSheepBasicBehaviour = (): void =>
     pipeableArrayLengthCheck (2),
     sheepArray => produce (sheepArray, draft => {draft[0].behaviour = TSheepBehaviour.MATING} ),
     compareSheepInArrayBehaviourByIndex (TSheepBehaviour.MATING) (0),
-    updateSheepArrayBasicAndBirthingBehaviour,
-    compareSheepInArrayBehaviourByIndex (TSheepBehaviour.PREGNANT) (0),
-    updateSheepArrayBasicAndBirthingBehaviour,
+    updateSheepArrayBasicAndBirthingBehaviour (getTrue),
     pipeableArrayLengthCheck (3),
     compareSheepInArrayBehaviourByIndex (TSheepBehaviour.BIRTHING) (0),
     compareSheepInArrayBehaviourByIndex (TSheepBehaviour.NEWBORN) (2),
-    updateSheepArrayBasicAndBirthingBehaviour,
+    updateSheepArrayBasicAndBirthingBehaviour (getTrue),
     pipeableArrayLengthCheck (3),
     compareSheepInArrayBehaviourByIndex (TSheepBehaviour.RECOVERING) (0),
     compareSheepInArrayBehaviourByIndex (TSheepBehaviour.LAMB) (2),
-    updateSheepArrayBasicAndBirthingBehaviour,
+    updateSheepArrayBasicAndBirthingBehaviour (getTrue),
     pipeableArrayLengthCheck (3),
     compareSheepInArrayBehaviourByIndex (TSheepBehaviour.IDLE) (0),
     compareSheepInArrayBehaviourByIndex (TSheepBehaviour.IDLE) (2),
