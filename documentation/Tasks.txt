@@ -3,12 +3,14 @@ Todo
 
 x/ 
 
-
-
 x/ Remove the sheep id?
 
 Done
 ----
+30/ The sheep should mate when they are close enough and meet the mating rules
+
+29/ Disable the "create sheep" button when no name is specified, and set focus to "name" field
+
 28 / Move the sheep randomly
 
 27 / Add an onclick event handler to the sheep, to brand it

@@ -3,8 +3,8 @@ import { ISheep, IPoint, TSheepBehaviour, TSheepSex, IBox } from "./sheepTypes"
 // 3rd party imports
 import {produce} from 'immer';
 import { pipe, flow } from "fp-ts/lib/function"
-import { isUndefined } from "util";
-
+import * as A from 'fp-ts/lib/Array';
+import * as O from 'fp-ts/lib/Option';
 
 const MOVEMENT_QUANTITY = 5
 
@@ -221,25 +221,42 @@ export const canSheepMate =
 (sheep: ISheep) =>
 (sheepArray: ISheep[])
 : boolean =>
-  !isUndefined (
-    sheepArray.find ( sheepX =>
+  pipe (
+    sheepArray,
+    A.findFirst ( sheepX =>
       sheepX.behaviour === TSheepBehaviour.IDLE 
       && sheep.behaviour === TSheepBehaviour.IDLE
       && sheepX.sex !== sheep.sex
       && !sheep.isBranded 
       && !sheepX.isBranded
       && haveSheepCollided (distance) (sheep) (sheepX)
-    ) 
+    ),
+    O.fold (
+      () => false,
+      () => true
+    )
   )
 
-
+  export const updateSheepArrayMatingBehaviour =
+  (distance: number) =>
+  (sheepArray: ISheep[])
+  : ISheep[] =>
+    produce (sheepArray, draft => {
+      draft.map ( draftSheep => 
+        canSheepMate (distance) (draftSheep) (sheepArray)
+          ? draftSheep.behaviour = TSheepBehaviour.MATING
+          : undefined 
+      )
+    })
+  
+  
 export const updateSheepArrayBirthingBehaviour =
 (sheepArray: ISheep[])
 : ISheep[] => {
   const newSheepArray: ISheep[] = [] 
   sheepArray.map (sheep =>
     sheep.behaviour === TSheepBehaviour.BIRTHING
-      ? newSheepArray.push ( createNewborn (-1, '', getRandomSex(), sheep.point) )
+      ? newSheepArray.push ( createNewborn (sheepArray.length + newSheepArray.length, sheep.name + '_' + newSheepArray.length, getRandomSex(), sheep.point) )
       : undefined
   )
   return sheepArray.concat (newSheepArray) 
@@ -254,6 +271,16 @@ export const updateSheepArrayBasicAndBirthingBehaviour:
 ISheep[] =
   flow (
     updateSheepArrayBasicBehaviour,
+    updateSheepArrayBirthingBehaviour,
+  )
+
+export const updateSheepArrayAllBehaviour = 
+(distance: number) =>
+(sheepArray: ISheep[])
+: ISheep[] =>
+  pipe (
+    updateSheepArrayBasicBehaviour (sheepArray),
+    updateSheepArrayMatingBehaviour (distance),
     updateSheepArrayBirthingBehaviour,
   )
 

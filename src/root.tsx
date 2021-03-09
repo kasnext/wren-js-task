@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 
 import { IBox, ISheep, TSheepBehaviour, TSheepSex } from "./sheepTypes"
-import { createSheep, getRandomPoint, updateSheepArrayPosition } from "./sheepFunctions"
+import { createSheep, getRandomPoint, updateSheepArrayAllBehaviour, updateSheepArrayPosition } from "./sheepFunctions"
 import { pipe } from 'fp-ts/lib/function';
 import * as A from 'fp-ts/lib/Array';
 import * as O from 'fp-ts/lib/Option';
@@ -56,7 +56,7 @@ const displaySheep =
   const imgSize = getSheepImageSize (sheep)
   img.src = '../media/' + getSheepImageName (sheep) + '.png'
   img.onload = () => {
-    canvas.fillText(sheep.name, sheep.point.x, sheep.point.y)
+    canvas.fillText(sheep.name + ' - ' + sheep.behaviour.toString(), sheep.point.x, sheep.point.y)
     canvas.drawImage(img, sheep.point.x, sheep.point.y, imgSize, imgSize)
   }
 }
@@ -70,6 +70,7 @@ export const Root = (): JSX.Element => {
 
     const [inputSex, setInputSex] = useState <TSheepSex>(TSheepSex.MALE)
     const [inputName, setInputName] = useState <string>('')
+    const [seconds, setSeconds] = useState(0)
 
     const findSheepAndBrand = (event: MouseEvent, canvas: HTMLCanvasElement): void => {
       const x = event.pageX - canvas.offsetLeft - canvas.clientLeft
@@ -115,17 +116,23 @@ export const Root = (): JSX.Element => {
         }
       }, [sheepArray])
        
+      // Todo - Only use 1 timer effect, and use a counter instead
+      // 1 every 20 cycles, update the behaviour and movement
+      // 19 out of every 20 cycles, update movement only
       useEffect(() => {
-//        pipe (
-          const interval = setInterval(() => {
-            pipe (
-              updateSheepArrayPosition (SHEEP_BOX) (sheepArray),
-              setSheepArray
-            )
-//            alert ('moving')
-          }, 50)
-          return () => clearInterval (interval)
-        }, [sheepArray])
+        const interval = setInterval(() => {
+          setSeconds(seconds + 1)
+          pipe (
+            
+            seconds % 20 === 0 
+              ? updateSheepArrayAllBehaviour (SHEEP_SIZE * 2) (sheepArray)
+              : updateSheepArrayPosition (SHEEP_BOX) (sheepArray),
+            setSheepArray
+          )
+        }, 50)
+        return () => clearInterval (interval)
+      }, [sheepArray])
+
 
         const handleSexChange = (event: React.ChangeEvent<HTMLSelectElement>): void =>
           setInputSex(
