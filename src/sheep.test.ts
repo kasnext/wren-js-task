@@ -7,10 +7,10 @@ import { createSheep, brandSheep, canSheepMate, haveSheepCollided, moveSheepInDi
 
 
 // Sanity test
-test.skip ('SanityTest', () => expect (true).toBe (true) )
+test.only ('SanityTest', () => expect (true).toBe (true) )
 
 // One sheep
-test.skip ('createSheep', () => testCreateSheep () )
+test.only ('createSheep', () => testCreateSheep () )
 
 // One sheep moving
 test.only ('testMoveFlossyOneSquare', () => testMoveFlossyOneSquare () )
@@ -26,15 +26,15 @@ test.only ('testMoveJoeDown100', () => testMoveJoeDown100 () )
 
 
 // One sheep behaviour
-test.skip ('testUpdateFemaleSheepBasicBehaviour', () => testUpdateFemaleSheepBasicBehaviour () )
-test.skip ('testUpdateMaleSheepBasicBehaviour', () => testUpdateMaleSheepBasicBehaviour () )
+test.only ('testUpdateFemaleSheepBasicBehaviour', () => testUpdateFemaleSheepBasicBehaviour () )
+test.only ('testUpdateMaleSheepBasicBehaviour', () => testUpdateMaleSheepBasicBehaviour () )
 
 
 // Array of sheep
-test.skip ('createArrayOfSheep', () => testCreateArrayOfSheep () )
-test.skip ('testUpdateArrayOfSheep', () => testUpdateArrayOfSheep () )
-test.skip ('testSheepHaveCollided1', () => testSheepHaveCollidedFalse () )
-test.skip ('testSheepHaveCollided2', () => testSheepHaveCollidedTrue () )
+test.only ('createArrayOfSheep', () => testCreateArrayOfSheep () )
+test.only ('testUpdateArrayOfSheep', () => testUpdateArrayOfSheep () )
+test.only ('testSheepHaveCollided1', () => testSheepHaveCollidedFalse () )
+test.only ('testSheepHaveCollided2', () => testSheepHaveCollidedTrue () )
 
 // Array of sheep mating behaviour
 test.only ('testCanSheepMateTrue', () => testCanSheepMateTrue () )

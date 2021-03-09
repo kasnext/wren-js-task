@@ -1,12 +1,13 @@
 Todo
 ----
 
-x/ 
+x/ Reduce the amount of animation flickering 
 
-32/ Add a button to reset the array of sheep
 
 Done
 ----
+32/ Add a button to reset the array of sheep
+
 31/ Add a button to pause the animation
 
 30/ The sheep should mate when they are close enough and meet the mating rules
