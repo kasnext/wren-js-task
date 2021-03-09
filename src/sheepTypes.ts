@@ -7,7 +7,6 @@ export interface IBox {
   readonly bottomRight: IPoint
 }
 
-
 export enum TSheepBehaviour {
   IDLE, 
   MATING, 
