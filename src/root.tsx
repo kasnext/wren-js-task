@@ -56,7 +56,7 @@ const displaySheep =
   const imgSize = getSheepImageSize (sheep)
   img.src = '../media/' + getSheepImageName (sheep) + '.png'
   img.onload = () => {
-    canvas.fillText(sheep.name + ' - ' + sheep.behaviour.toString(), sheep.point.x, sheep.point.y)
+    canvas.fillText(sheep.name, sheep.point.x, sheep.point.y)
     canvas.drawImage(img, sheep.point.x, sheep.point.y, imgSize, imgSize)
   }
 }
@@ -91,7 +91,6 @@ export const Root = (): JSX.Element => {
     }
 
     const brandSheep = (sheep: ISheep): void =>
-//      alert ('x: ' + sheep.point.x + ' y: ' + sheep.point.y)
       pipe ( 
         produce (sheepArrayState, draft => {
           pipe (
@@ -106,19 +105,18 @@ export const Root = (): JSX.Element => {
 
 
       useEffect(() => {
-          const canvas = canvasRef.current;
-          if (canvas !== null) {
-          const context = canvas.getContext('2d');
+        const canvas = canvasRef.current
+        if (canvas !== null) {
+          const context = canvas.getContext('2d')
           if (context !== null) {
             context.clearRect (FIELD_BOX.topLeft.x, FIELD_BOX.topLeft.y, FIELD_BOX.bottomRight.x, FIELD_BOX.bottomRight.y) 
             sheepArrayState.map (displaySheep (context))
             canvas.onclick = (event: MouseEvent) => findSheepAndBrand (event, canvas)
           }
         }
-      }, [sheepArrayState])
+      }, [sheepArrayState, pauseState])
        
-      // Todo - Only use 1 timer effect, and use a counter instead
-      // 1 every 20 cycles, update the behaviour and movement
+      // 1 every 20 cycles, update the behaviour only
       // 19 out of every 20 cycles, update movement only
       useEffect(() => {
         const interval = setInterval(() => {
@@ -201,10 +199,18 @@ export const Root = (): JSX.Element => {
             >
               {pauseState ? 'Play' : 'Pause'}
             </button>          
+            <button  
+              className="btn btn-lg btn-primary btn-block"
+              onClick   = {() => setSheepArrayState ([])}
+              disabled = {sheepArrayState.length === 0}
+            >
+              {'Reset'}
+            </button>          
           </div>
         </div>
         <div className="field">
-          <canvas className="canvas" ref={canvasRef} 
+          <label id="brandLabel" className="brandLabel" htmlFor="fieldCanvas">Click on a sheep to brand it</label>
+          <canvas id="fieldCanvas" className="canvas" ref={canvasRef} 
             width={FIELD_BOX.bottomRight.x - FIELD_BOX.topLeft.x}
             height={FIELD_BOX.bottomRight.y - FIELD_BOX.topLeft.y}
           />

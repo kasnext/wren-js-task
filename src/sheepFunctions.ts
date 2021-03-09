@@ -161,14 +161,6 @@ export const updateSheepArrayPosition =
     })
   })
 
-// export const updateSheepArrayPositionOld =
-// (box: IBox) =>
-// (sheepArray: ISheep[])
-// : ISheep[] =>
-//   produce (sheepArray, draft => {
-//     draft.map (draftSheep => draftSheep.point.x = draftSheep.point.x + 10 + box.topLeft.x)
-//   })
-  
 //--------------------------------------------------------------------------------
 // Sheep basic behaviour
 //--------------------------------------------------------------------------------
@@ -256,7 +248,7 @@ export const updateSheepArrayBirthingBehaviour =
   const newSheepArray: ISheep[] = [] 
   sheepArray.map (sheep =>
     sheep.behaviour === TSheepBehaviour.BIRTHING
-      ? newSheepArray.push ( createNewborn (sheepArray.length + newSheepArray.length, sheep.name + '_' + newSheepArray.length, getRandomSex(), sheep.point) )
+      ? newSheepArray.push ( createNewborn (sheepArray.length + newSheepArray.length, sheep.name + '_' + (sheepArray.length + newSheepArray.length), getRandomSex(), sheep.point) )
       : undefined
   )
   return sheepArray.concat (newSheepArray) 
