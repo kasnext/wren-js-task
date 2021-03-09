@@ -9,7 +9,7 @@ const DIST_PATH = path.resolve(ROOT_PATH, 'dist');
 module.exports = {
     entry: path.resolve(SRC_PATH, 'index.ts'),
     mode: 'development',
-    devtool: 'cheap-eval-source-map',
+    devtool: 'eval-cheap-source-map',
 
     module: {
         rules: [{
