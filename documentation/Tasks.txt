@@ -3,10 +3,12 @@ Todo
 
 x/ 
 
-x/ Remove the sheep id?
+
 
 Done
 ----
+31/ Add a button to pause the animation
+
 30/ The sheep should mate when they are close enough and meet the mating rules
 
 29/ Disable the "create sheep" button when no name is specified, and set focus to "name" field

@@ -66,18 +66,19 @@ export const Root = (): JSX.Element => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const inputNameRef = useRef<HTMLInputElement>(null)
 
-    const [sheepArray, setSheepArray] = useState <ISheep[]> ([])
+    const [sheepArrayState, setSheepArrayState] = useState <ISheep[]> ([])
 
-    const [inputSex, setInputSex] = useState <TSheepSex>(TSheepSex.MALE)
-    const [inputName, setInputName] = useState <string>('')
-    const [seconds, setSeconds] = useState(0)
+    const [inputSexState, setInputSexState] = useState <TSheepSex>(TSheepSex.MALE)
+    const [inputNameState, setInputNameState] = useState <string>('')
+    const [secondsState, setSecondsState] = useState(0)
+    const [pauseState, setPauseState] = useState(false)
 
     const findSheepAndBrand = (event: MouseEvent, canvas: HTMLCanvasElement): void => {
       const x = event.pageX - canvas.offsetLeft - canvas.clientLeft
       const y = event.pageY - canvas.offsetTop - canvas.clientTop
 
       pipe (
-        sheepArray,
+        sheepArrayState,
         A.findFirst (sheep => 
           Math.abs (sheep.point.x + SHEEP_SIZE/2 - x) < SHEEP_SIZE/2 && 
           Math.abs (sheep.point.y + SHEEP_SIZE/2 - y) < SHEEP_SIZE/2
@@ -92,7 +93,7 @@ export const Root = (): JSX.Element => {
     const brandSheep = (sheep: ISheep): void =>
 //      alert ('x: ' + sheep.point.x + ' y: ' + sheep.point.y)
       pipe ( 
-        produce (sheepArray, draft => {
+        produce (sheepArrayState, draft => {
           pipe (
             draft.find (sheepX => sheepX.id === sheep.id),
             sheepX => sheepX 
@@ -100,7 +101,7 @@ export const Root = (): JSX.Element => {
               : undefined
           )
         }),
-        setSheepArray 
+        setSheepArrayState 
       )
 
 
@@ -110,32 +111,33 @@ export const Root = (): JSX.Element => {
           const context = canvas.getContext('2d');
           if (context !== null) {
             context.clearRect (FIELD_BOX.topLeft.x, FIELD_BOX.topLeft.y, FIELD_BOX.bottomRight.x, FIELD_BOX.bottomRight.y) 
-            sheepArray.map (displaySheep (context))
+            sheepArrayState.map (displaySheep (context))
             canvas.onclick = (event: MouseEvent) => findSheepAndBrand (event, canvas)
           }
         }
-      }, [sheepArray])
+      }, [sheepArrayState])
        
       // Todo - Only use 1 timer effect, and use a counter instead
       // 1 every 20 cycles, update the behaviour and movement
       // 19 out of every 20 cycles, update movement only
       useEffect(() => {
         const interval = setInterval(() => {
-          setSeconds(seconds + 1)
-          pipe (
-            
-            seconds % 20 === 0 
-              ? updateSheepArrayAllBehaviour (SHEEP_SIZE * 2) (sheepArray)
-              : updateSheepArrayPosition (SHEEP_BOX) (sheepArray),
-            setSheepArray
+          setSecondsState(secondsState + 1)
+          !pauseState
+          ? pipe (
+            secondsState % 20 === 0 
+              ? updateSheepArrayAllBehaviour (SHEEP_SIZE * 2) (sheepArrayState)
+              : updateSheepArrayPosition (SHEEP_BOX) (sheepArrayState),
+            setSheepArrayState
           )
+          : undefined
         }, 50)
         return () => clearInterval (interval)
-      }, [sheepArray])
+      }, [sheepArrayState, pauseState])
 
 
         const handleSexChange = (event: React.ChangeEvent<HTMLSelectElement>): void =>
-          setInputSex(
+          setInputSexState(
             pipe (
               sexOptions,
               A.findFirst (option => option.label === event.target.value),
@@ -147,8 +149,8 @@ export const Root = (): JSX.Element => {
           )
         
         const doCreateSheep = (): ISheep => {
-          const sheep: ISheep = createSheep (sheepArray.length, inputName, inputSex, getRandomPoint (SHEEP_BOX_SIZE))
-          setInputName ('')
+          const sheep: ISheep = createSheep (sheepArrayState.length, inputNameState, inputSexState, getRandomPoint (SHEEP_BOX_SIZE))
+          setInputNameState ('')
           inputNameRef
             ? inputNameRef.current
               ? inputNameRef.current.focus()
@@ -172,8 +174,8 @@ export const Root = (): JSX.Element => {
               className='form-control'
               name='sheepNameText'
               placeholder="Name" required autoFocus
-              value={inputName}
-              onChange={event => setInputName(event.target.value)}
+              value={inputNameState}
+              onChange={event => setInputNameState(event.target.value)}
             />
             <label id="sheepSexLabel" htmlFor="sheepSex" className="sr-only">Sex</label>
             <select className="form-control" onChange={handleSexChange}>
@@ -185,15 +187,19 @@ export const Root = (): JSX.Element => {
             <button  
               className="btn btn-lg btn-primary btn-block"
               onClick   = {() => 
-                inputName !== ''
-                  ? setSheepArray (
-                      sheepArray.concat (doCreateSheep ())
-                    )
+                inputNameState !== ''
+                  ? setSheepArrayState (sheepArrayState.concat (doCreateSheep ()))
                   : undefined
-                }
-                disabled={inputName===''} 
+              }
+              disabled={inputNameState === ''} 
             >
               {'Create Sheep'}
+            </button>          
+            <button  
+              className="btn btn-lg btn-primary btn-block"
+              onClick   = {() => setPauseState (!pauseState)}
+            >
+              {pauseState ? 'Play' : 'Pause'}
             </button>          
           </div>
         </div>
