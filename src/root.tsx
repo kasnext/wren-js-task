@@ -118,15 +118,18 @@ export const Root = (): JSX.Element => {
       )
     )
   
-  const doCreateSheep = (): ISheep => {
-    const sheep: ISheep = createSheep (sheepArrayState.length, inputNameState, inputSexState, SHEEP_BOX_CENTRE)
+  const doCreateSheep = (): void => {
+    pipe (
+      createSheep (sheepArrayState.length, inputNameState, inputSexState, SHEEP_BOX_CENTRE),
+      sheep => sheepArrayState.concat (sheep), // have to be explicit here with the params as concat is overloaded
+      setSheepArrayState
+    )
     setInputNameState ('')
     inputNameRef
       ? inputNameRef.current
         ? inputNameRef.current.focus()
       : undefined
     : undefined
-    return sheep
   }          
 
   return <div className="total"
@@ -158,7 +161,7 @@ export const Root = (): JSX.Element => {
           className="btn btn-lg btn-primary btn-block"
           onClick   = {() => 
             inputNameState !== ''
-              ? setSheepArrayState (sheepArrayState.concat (doCreateSheep ()))
+              ? doCreateSheep ()
               : undefined
           }
           disabled={inputNameState === ''} 

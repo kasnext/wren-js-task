@@ -6,8 +6,8 @@ Given Breeding Rules
 Assumed Breeding Rules
 -----------------------
 1/ Mating between 2 sheep will occur when 
-  - they are within a certain distance of each other  
-  - they are both currently in the idle state
+  - they are within a certain distance of each other (if they collide)
+  - they are both currently in the IDLE state
   - one is male and the other is female
 2/ The sex of the newborn sheep will be random, with a weighting of male 50% of the time
 3/ Male sheep do not give birth
@@ -18,7 +18,8 @@ Assumed Breeding Rules
 Sheep State Changes
 -------------------
 Male:     IDLE -> MATING -> RECOVERING -> IDLE
-Female:   IDLE -> MATING -> BIRTHING -> RECOVERING -> IDLE or
+Female:   IDLE -> MATING -> BIRTHING -> RECOVERING -> IDLE 
+          or (50% of the time)
           IDLE -> MATING -> RECOVERING -> IDLE
 Newborn:  NEWBORN -> LAMB -> IDLE
 
