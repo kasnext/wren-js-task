@@ -1,11 +1,11 @@
 Todo
 ----
 
-x/ Reduce the amount of animation flickering 
-
 
 Done
 ----
+36/ Reduce the amount of animation flickering 
+
 35/ Upgraded all packages and changed webpack.config.js to fix the jest/webpack compatibility problem
 
 34/ Add tests - Females should only give birth 50% of the time after mating

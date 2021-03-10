@@ -6,7 +6,7 @@ import { pipe, flow } from "fp-ts/lib/function"
 import * as A from 'fp-ts/lib/Array';
 import * as O from 'fp-ts/lib/Option';
 
-const MOVEMENT_QUANTITY = 5
+const MOVEMENT_QUANTITY = 2
 
 //--------------------------------------------------------------------------------
 // Random functions
@@ -37,12 +37,12 @@ const getNextFemaleBehviourAfterMating = (getTrueOrFalse: TGetTrueOrFalse): TShe
   
 
 
-// This returns an angle that is different from the prev angle by an amount up to 90 degrees
+// This returns an angle that is different from the prev angle by an amount up to 60 degrees
 // This prevents sudden changes in direction
 const getRandomAngle = (prevAngle: number): number =>
   pipe (
     Math.random (),
-    value => (value - 0.5) * Math.PI/2,
+    value => (value - 0.5) * Math.PI/3,
     value => prevAngle + value
   )
 

@@ -87,23 +87,35 @@ export const Root = (): JSX.Element => {
       }
     }
   }, [sheepArrayState, pauseState])
-       
+
+  const myAnimation = () => {
+    // Todo - The following 4 lines are a hack to get hold of the latest state
+    // We can't get this from useEffect as it seems to mess up the animation
+    let newSeconds = secondsState
+    setSecondsState(prevSecondsState  => {newSeconds = prevSecondsState + 1; return newSeconds})
+    let newPause = pauseState
+    setPauseState(prevPauseState  => {newPause = prevPauseState; return newPause})
+    
+    !newPause
+    ? setSheepArrayState ( prevSheepArrayState => 
+      pipe (
+        newSeconds % 30 === 0 
+          ? updateSheepArrayAllBehaviour (getRandomTrueOrFalse) (SHEEP_SIZE * 2) (prevSheepArrayState)
+          : newSeconds % 2 === 0 
+            ? updateSheepArrayPosition (SHEEP_BOX) (prevSheepArrayState)
+            : prevSheepArrayState
+      )
+    )
+    : undefined
+    requestAnimationFrame(myAnimation)
+  }
+
   // 1 every 10 cycles, update the behaviour only
   // 9 out of every 10 cycles, update movement only
   useEffect(() => {
-    const interval = setInterval(() => {
-      setSecondsState(secondsState + 1)
-      !pauseState
-      ? pipe (
-        secondsState % 10 === 0 
-          ? updateSheepArrayAllBehaviour (getRandomTrueOrFalse) (SHEEP_SIZE * 2) (sheepArrayState)
-          : updateSheepArrayPosition (SHEEP_BOX) (sheepArrayState),
-        setSheepArrayState
-      )
-      : undefined
-    }, 50)
-    return () => clearInterval (interval)
-  }, [sheepArrayState, pauseState])
+    const animationFrame = requestAnimationFrame (myAnimation)
+    return () => cancelAnimationFrame (animationFrame)
+  }, [])
 
 
   const handleSexChange = (event: React.ChangeEvent<HTMLSelectElement>): void =>
@@ -176,7 +188,11 @@ export const Root = (): JSX.Element => {
         </button>          
         <button  
           className="btn btn-lg btn-primary btn-block"
-          onClick   = {() => setSheepArrayState ([])}
+          onClick   = {() => {
+            setSheepArrayState ([]), 
+            setPauseState(prevPauseState => !prevPauseState) // We need to call this twice to reset the timer
+            setPauseState(prevPauseState => !prevPauseState) 
+          }}
           disabled = {sheepArrayState.length === 0}
         >
           {'Reset'}
