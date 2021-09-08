@@ -1,3 +1,7 @@
+//----------------------------------------------------------------------------
+// 07 Sep 2021 - All tests passed first time
+//----------------------------------------------------------------------------
+
 import { ISheep, IPoint, TSheepBehaviour, TSheepSex, IBox } from "./sheepTypes"
 
 // 3rd party imports
@@ -59,13 +63,17 @@ const DIRECTION_DOWN      = 3/4*(2*Math.PI)
 const DIRECTION_DOWNRIGHT = 7/8*(2*Math.PI)
 const DIRECTION_UPLEFT    = 3/8*(2*Math.PI)
 
+const NAME_FLOSSY = 'Flossy'
+const NAME_FRED = 'Fred'
+const NAME_JOE = 'Joe'
 
-const createFlossy  = (): ISheep => createSheep (0, 'Flossy', TSheepSex.FEMALE, TEST_FIELD_BOX.topLeft)
-const createFred    = (): ISheep => createSheep (0, 'Fred', TSheepSex.MALE, TEST_FIELD_BOX.bottomRight)
+
+const createFlossy  = (): ISheep => createSheep (0, NAME_FLOSSY, TSheepSex.FEMALE, TEST_FIELD_BOX.topLeft)
+const createFred    = (): ISheep => createSheep (0, NAME_FRED, TSheepSex.MALE, TEST_FIELD_BOX.bottomRight)
 
 const createJoe = (): ISheep => 
   pipe (
-    createSheep (0, 'Joe', TSheepSex.MALE, TEST_FIELD_TOPRIGHT),
+    createSheep (0, NAME_JOE, TSheepSex.MALE, TEST_FIELD_TOPRIGHT),
     sheep => produce (sheep, draft => {draft.isBranded = true})  
   )
 
@@ -92,7 +100,7 @@ const moveOneSheepInArrayOneSquare =
 const testCreateSheep: () => void =
   flow (
     createFlossy,
-    sheep => expect (sheep.name).toBe ('Flossy'),
+    sheep => expect (sheep.name).toBe (NAME_FLOSSY),
   )
 
 const testMoveFlossyOneSquare: () => void = 
@@ -270,6 +278,7 @@ const compareSheepBehaviour =
   }
 
 // We need the getTrue and getFalse to test the randomness of the reproduction
+// in a way that is deterministic and reproducable
 const getTrue: TGetTrueOrFalse = 
   () => true 
 
